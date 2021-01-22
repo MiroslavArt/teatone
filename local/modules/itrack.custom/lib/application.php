@@ -9,12 +9,8 @@ use Bitrix\Main\Page\Asset;
 
 class Application
 {
-    const DEAL_CATEGORY_EDUCATION_ID = 47;
-    const DEAL_CATEGORY_WEBINAR_ID = 50;
-    const DEAL_CATEGORY_ONLINE_PRACTICE_ID = 3;
-    const DEAL_CATEGORY_SEMINAR_PRACTICE_ID = 1;
-    const DEAL_CATEGORY_BE4MSK_ID = 30;
-    const DEAL_CATEGORY_PROJECT_BE_ID = 56;
+
+    const DEAL_CATEGORY_PROJECT= 56;
 
     public static function init()
     {
