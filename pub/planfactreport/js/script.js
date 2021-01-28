@@ -120,6 +120,9 @@ $(document).ready(function() {
     //    alert($(this).val())
     //})
 
+
+
+    // событие кнопки сформировать план
     $("#btnSubmitplan").click(function(){
         generateplan()
         //alert("button");
@@ -127,11 +130,11 @@ $(document).ready(function() {
         //$("#result").html(data1);
     });
 
-
+    // событие кнопки сформировать факт
     $("#btnSubmitfact").click(function(){
         alert("button");
-        var data2 = '<p>No</p>'
-        $("#result1").html(data2);
+        //var data2 = '<p>No</p>'
+        //$("#result1").html(data2);
     });
 })
 
@@ -299,7 +302,7 @@ function generateplan() {
                     }
                 });
             });
-            alert("План сохранен")
+            alert("План сохранен!")
         })
 
         $("#submit").append(saveplan)
