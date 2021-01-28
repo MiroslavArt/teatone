@@ -167,16 +167,32 @@
                             //IBLOCK_CODE: 'listplans',
                             SOCNET_GROUP_ID: groupid,
                             FIELDS: {
-                                NAME: 'week',
+                                NAME: 'month',
                                 IS_REQUIRED: 'N',
                                 MULTIPLE: 'N',
                                 TYPE: 'N',
-                                CODE: 'WEEK'
+                                CODE: 'MONTH'
                             }
                         }
 
                     ],
                     add_listpf4: ['lists.field.add',
+                        {
+                            IBLOCK_TYPE_ID: 'lists_socnet',
+                            IBLOCK_ID: groupplanid,
+                            //IBLOCK_CODE: 'listplans',
+                            SOCNET_GROUP_ID: groupid,
+                            FIELDS: {
+                                NAME: 'year',
+                                IS_REQUIRED: 'N',
+                                MULTIPLE: 'N',
+                                TYPE: 'N',
+                                CODE: 'YEAR'
+                            }
+                        }
+
+                    ],
+                    add_listpf5: ['lists.field.add',
                         {
                             IBLOCK_TYPE_ID: 'lists_socnet',
                             IBLOCK_ID: groupplanid,

@@ -1,1 +1,45 @@
-<?php
+<html lang="ru">
+<head>
+    <title>Учет финансов</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css?<?=time()?>" type='text/css' />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="//api.bitrix24.com/api/v1/dev/"></script>
+    <script src="js/script.js?<?=time()?>"></script>
+</head>
+<body>
+<div class="db">
+    <ul class="titles">
+        <li class="title active">Просмотр и ввод плановых значений</li>
+        <li class="title">Построение отчета</li>
+    </ul>
+    <div class="tabs">
+        <div id="planinput" class="tab active">
+            <p>Выберите сотрудника, год и введите плановые значения в разрезе недель</p>
+            <p>Год</p></p><div id="container"></div>
+            <p>Сотрудник</p><div id="employees"></div>
+            <p>Вид показателя</p><div id="types"></div>
+            <input id = "btnSubmitplan" type="submit" value="Вывести план"/>
+            <div id="results" class="blocks">
+                <div id="result1"></div>
+                <div id="result2"></div>
+                <div id="result3"></div>
+            </div>
+
+            <div id="submit"></div>
+
+        </div>
+        <div class="tab">
+            <!-- <b>.toggle()</b> -->
+            <div id="content">
+                <input id = "btnSubmitfact" type="submit" value="Release"/>
+                <!-- <button id="button-a">Выгрузить в Excel</button> -->
+                <div id="resultfact"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+
