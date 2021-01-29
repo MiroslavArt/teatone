@@ -39,8 +39,7 @@
                 <p>Вид показателя</p><div id="typesf"></div>
                 <input id = "btnSubmitfact" type="submit" value="Сформировать отчет"/>
                 <!-- <button id="button-a">Выгрузить в Excel</button> -->
-                <div id="resultfact"></div>
-
+                <div id="resultfact"><div id="resultfacttext"></div><div id="resultfactdate"></div></div>
             </div>
         </div>
     </div>

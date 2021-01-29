@@ -108,7 +108,7 @@
 
                     }
                 ],
-                call_bind2: ['event.bind',
+                /*call_bind2: ['event.bind',
                     {
                         EVENT: 'onCrmActivityUpdate',
                         HANDLER: 'https://lyantsevich.teatone.softmonster.ru/pub/planfactreport/handlers/activityhandler.php'
@@ -121,7 +121,7 @@
                         HANDLER: 'https://lyantsevich.teatone.softmonster.ru/pub/planfactreport/handlers/activityhandler.php'
 
                     }
-                ]
+                ]*/
 
             }, function (resultplus) {
                // console.log(resultplus)

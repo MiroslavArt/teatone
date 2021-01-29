@@ -156,17 +156,10 @@ $(document).ready(function() {
     // событие кнопки сформировать план
     $("#btnSubmitplan").click(function(){
         generateplan()
-        //alert("button");
-        //var data1 = '<p>Yes</p>'
-        //$("#result").html(data1);
     });
 
     // событие кнопки сформировать факт
     $("#btnSubmitfact").click(function(){
-        //alert("button");
-        //var types = $("#typef").val();
-        //var data2 = '<p>Факт за' + $("#datepickerstart").val() + $("#datepickerfinish").val() + $("#userf").val() + types.toString() + '</p>'
-        //$("#resultfact").html(data2);
         generatefact()
     });
 })
@@ -199,12 +192,6 @@ function generateplan() {
     setyear = $("#year").val();
     setuser = $("#user").val();
     settype = $("#type").val();
-    //console.log(setyear)
-    //console.log(setuser)
-    //console.log(settype)
-
-
-    //var textinsert = $("<p></p>").text("План за" + $("#year").val() + "по пользователю" + $("#user").val() + "с типом" + $("#type").val())
     $("#result1").empty();
     $("#result2").empty();
     $("#result3").empty();
@@ -341,20 +328,113 @@ function generateplan() {
 }
 
 function generatefact() {
-    setdatebegf = $("#datepickerstart").val();
-    setdateendp = $("#datepickerfinish").val();
-    setuserf = $("#userf").val();
-    settypesf = $("#typef").val();
+    // забираем данные с формы
+    var datebeg = $("#datepickerstart").datepicker( "getDate" )
+    var dateend = $("#datepickerfinish").datepicker( "getDate" )
+    var yearbegf = datebeg.getFullYear()
+    var monthbegf = datebeg.getMonth()+1
+    var yearendf = dateend.getFullYear()
+    var monthendf = dateend.getMonth()+1
+    setdatebegf = $("#datepickerstart").val()
+    setdateendp = $("#datepickerfinish").val()
+    setuserf = $("#userf").val()
+    settypesf = $("#typef").val()
+
     var resultarr = [];
+    var request = {}
+    var requestparam = {}
+
+    // поля плана
+    request['plan_fields'] = ['lists.field.get']
+    requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
+    requestparam['IBLOCK_CODE'] = 'listplans'+options.groups.planfact
+    requestparam['SOCNET_GROUP_ID'] = options.groups.planfact
+    request['plan_fields'].push(requestparam)
+
+    requestparam = {}
+    // поля факта
+    request['fact_fields'] = ['lists.field.get']
+    requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
+    requestparam['IBLOCK_CODE'] = 'listfacts'+options.groups.planfact
+    requestparam['SOCNET_GROUP_ID'] = options.groups.planfact
+    request['fact_fields'].push(requestparam)
 
     if(setdateendp < setdatebegf) {
         alert("Дата начала должна быть меньше даты завершения")
         return false
     } else {
+        $("#resultfacttext").text("Подождите, отчет формируется...")
+        // собираем первоначальный батч
         $.each(settypesf,function(index,settypesf){
             console.log(settypesf)
+            requestparam = {}
+            request['planv_'+settypesf] = ['lists.element.get']
+            requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
+            requestparam['IBLOCK_CODE'] = 'listplans'+options.groups.planfact
+            requestparam['SOCNET_GROUP_ID'] = options.groups.planfact
+            requestparam['FILTER'] = {
+                ">=PROPERTY_YEAR": yearbegf,
+                "<=PROPERTY_YEAR": yearendf,
+                ">=PROPERTY_MONTH": monthbegf,
+                "<=PROPERTY_MONTH": monthendf,
+                "PROPERTY_TYPE": settypesf,
+                "PROPERTY_EMPLOYEE": setuserf
+            }
+            request['planv_'+settypesf].push(requestparam)
+
+            requestparam = {}
+
+            if(settypesf=="IC") {
+                // логика входящих звонков
+                request['get_incoming'] = ['crm.activity.list']
+                requestparam['ORDER'] = { "ID": "DESC" }
+                requestparam['FILTER'] = { "TYPE_ID": 2,
+                    ">=START_TIME": setdatebegf, "<=START_TIME": setdateendp,
+                    'AUTHOR_ID': setuserf, "DIRECTION": 2
+                }
+                requestparam['SELECT'] = ["*"]
+                request['get_incoming'].push(requestparam)
+            } else if(settypesf=="OC") {
+                // логика исходящих звонков
+                request['get_outcoming'] = ['crm.activity.list']
+                requestparam['ORDER'] = { "ID": "DESC" }
+                requestparam['FILTER'] = { "TYPE_ID": 2,
+                    ">=START_TIME": setdatebegf, "<=START_TIME": setdateendp,
+                    'AUTHOR_ID': setuserf, "DIRECTION": 1
+                }
+                requestparam['SELECT'] = ["*"]
+                request['get_outcoming'].push(requestparam)
+            } else if(settypesf=="CL") {
+                // логика чек листов к задачам
+                request['task_list'] = ['tasks.task.list']
+                requestparam['ORDER'] = { "ID": "DESC" }
+                requestparam['FILTER'] = {
+                    ">=CREATED_DATE": setdateendp,
+                    'RESPONSIBLE_ID': setuserf
+                }
+                requestparam['SELECT'] = ["*"]
+                request['task_list'].push(requestparam)
+            } else {
+                // логика анализа завершенных сделок
+                request['list_'+settypesf] = ['lists.element.get']
+                requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
+                requestparam['IBLOCK_CODE'] = 'listfacts'+options.groups.planfact
+                requestparam['SOCNET_GROUP_ID'] = options.groups.planfact
+                requestparam['FILTER'] = {
+                    ">=DATE_CREATE": setdatebegf,
+                    "<=DATE_CREATE": setdateendp,
+                    "PROPERTY_TYPE": settypesf,
+                    "PROPERTY_EMPLOYEE": setuserf
+                }
+                request['list_'+settypesf].push(requestparam)
+            }
         });
 
+        // делаем запрос
+        console.log(request)
+        BX24.callBatch(request, function (resultplus) {
+            console.log(resultplus)
+        })
     }
 }
 
