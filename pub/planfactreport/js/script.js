@@ -2,12 +2,35 @@ var options = {};
 var setuser;
 var settype;
 var setyear;
+var setdatebegf;
+var setdateendp;
+var setuserf;
+var settypesf = [];
 var explan = [];
 var planvaluefield;
 var planmonthfield;
 var plantypefield;
 var planuserfield;
 var planyearfield;
+
+$.datepicker.regional['ru'] = {
+    closeText: 'Закрыть',
+    prevText: 'Предыдущий',
+    nextText: 'Следующий',
+    currentText: 'Сегодня',
+    monthNames: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+    monthNamesShort: ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'],
+    dayNames: ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+    dayNamesShort: ['вск','пнд','втр','срд','чтв','птн','сбт'],
+    dayNamesMin: ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+    weekHeader: 'Не',
+    dateFormat: 'dd.mm.yy',
+    firstDay: 1,
+    isRTL: false,
+    showMonthAfterYear: false,
+    yearSuffix: ''
+};
+$.datepicker.setDefaults($.datepicker.regional['ru']);
 
 BX24.init(function(){
     options.groups = JSON.parse(BX24.appOption.get('planfact_uv_groups'));
@@ -31,6 +54,12 @@ $(document).ready(function() {
         // Тексты
         $tabs.hide().eq($(this).index()).show().addClass(ACTIVE).siblings().removeClass(ACTIVE);
     });
+
+    // календари ввод значений
+    $("#datepickerstart").datepicker()
+    $("#datepickerstart").datepicker( "setDate", new Date())
+    $("#datepickerfinish").datepicker()
+    $("#datepickerfinish").datepicker( "setDate", new Date())
 
     // добавляем года
     var year = new Date();
@@ -114,13 +143,15 @@ $(document).ready(function() {
         });
         $("#types").html(select3);
         $("#type :first").attr("selected", "selected");
+
+        var select4 = $("<select></select>").attr("id", "typef").attr("name", "typef").attr("multiple", "multiple");
+        $.each(types,function(index,types){
+            //console.log(json)
+            select4.append($("<option></option>").attr("value", types.value).text(types.text));
+        });
+        $("#typesf").html(select4);
+        $("#typef :first").attr("selected", "selected");
     });
-
-    //select.change(function () {
-    //    alert($(this).val())
-    //})
-
-
 
     // событие кнопки сформировать план
     $("#btnSubmitplan").click(function(){
@@ -132,24 +163,16 @@ $(document).ready(function() {
 
     // событие кнопки сформировать факт
     $("#btnSubmitfact").click(function(){
-        alert("button");
-        //var data2 = '<p>No</p>'
-        //$("#result1").html(data2);
+        //alert("button");
+        //var types = $("#typef").val();
+        //var data2 = '<p>Факт за' + $("#datepickerstart").val() + $("#datepickerfinish").val() + $("#userf").val() + types.toString() + '</p>'
+        //$("#resultfact").html(data2);
+        generatefact()
     });
 })
 
 
 function arrayuserfill(users) {
-    //console.log(users);
-    //console.log(users.length);
-    //json = users
-    //onsole.log(json)
-    //console.log(typeof json)
-    //console.log(Array.isArray(users))
-
-    //users.forEach(function (entry) {
-    //    console.log(entry)
-    //})
     users.sort((prev, next) => {
         if ( prev.text < next.text ) return -1;
         if ( prev.text > next.text ) return 1;
@@ -162,6 +185,14 @@ function arrayuserfill(users) {
     });
     $("#employees").html(select2);
     $("#user :first").attr("selected", "selected");
+
+    var select3 = $("<select></select>").attr("id", "userf").attr("name", "userf");
+    $.each(users,function(index,users){
+        //console.log(users)
+        select3.append($("<option></option>").attr("value", users.value).text(users.text));
+    });
+    $("#employeesf").html(select3);
+    $("#userf :first").attr("selected", "selected");
 }
 
 function generateplan() {
@@ -307,5 +338,23 @@ function generateplan() {
 
         $("#submit").append(saveplan)
     });
+}
+
+function generatefact() {
+    setdatebegf = $("#datepickerstart").val();
+    setdateendp = $("#datepickerfinish").val();
+    setuserf = $("#userf").val();
+    settypesf = $("#typef").val();
+    var resultarr = [];
+
+    if(setdateendp < setdatebegf) {
+        alert("Дата начала должна быть меньше даты завершения")
+        return false
+    } else {
+        $.each(settypesf,function(index,settypesf){
+            console.log(settypesf)
+        });
+
+    }
 }
 
