@@ -38,6 +38,7 @@
                 <p>Сотрудник</p><div id="employeesf"></div>
                 <p>Вид показателя</p><div id="typesf"></div>
                 <input id = "btnSubmitfact" type="submit" value="Сформировать отчет"/>
+                <input id = "btnClearfact" type="submit" value="Очистить данные отчетов"/>
                 <!-- <button id="button-a">Выгрузить в Excel</button> -->
                 <div id="resultfact"><div id="resultfacttext"></div><div id="resultfactdate"></div></div>
             </div>

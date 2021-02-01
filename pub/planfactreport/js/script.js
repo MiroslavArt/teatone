@@ -5,6 +5,7 @@ var setyear;
 var setdatebegf;
 var setdateendp;
 var setuserf;
+var managername;
 var settypesf = [];
 var explan = [];
 var types = [];
@@ -15,6 +16,8 @@ var planuserfield;
 var planyearfield;
 var factvaluefield;
 var factdatefield;
+var users = [];
+var maxtablewidth = 600;
 
 $.datepicker.regional['ru'] = {
     closeText: 'Закрыть',
@@ -42,7 +45,6 @@ BX24.init(function(){
 });
 
 $(document).ready(function() {
-    var users = [];
     //let objuser = {value: "0", text: "Нет данных"};
     //users.push(objuser)
     //console.log(users)
@@ -52,6 +54,9 @@ $(document).ready(function() {
     $tabs.not(ACTIVE_DOT).hide();
     // Обработка переключений закладок <ul>
     $('ul.titles').on('click', 'li:not(ACTIVE_DOT)', function () {
+        $("#resultfacttext").empty()
+        $("#resultfactdate").empty()
+        $(".tabs").width('100%')
         // Заголовки
         $(this).addClass(ACTIVE).siblings().removeClass(ACTIVE);
         // Тексты
@@ -164,6 +169,13 @@ $(document).ready(function() {
     // событие кнопки сформировать факт
     $("#btnSubmitfact").click(function(){
         generatefact()
+    });
+
+    // событие кнопки очистки факта
+    $("#btnClearfact").click(function(){
+        $("#resultfacttext").empty()
+        $("#resultfactdate").empty()
+        $(".tabs").width('100%')
     });
 })
 
@@ -341,6 +353,7 @@ function generatefact() {
     setdatebegf = $("#datepickerstart").val()
     setdateendp = $("#datepickerfinish").val()
     setuserf = $("#userf").val()
+    managername = $("#userf option:selected").text()
     settypesf = $("#typef").val()
 
     if(setdatebegf=="" || setdatebegf=="") {
@@ -364,6 +377,7 @@ function generatefact() {
             settypesf.splice(clind,1)
             settypesf.push("CL")
         }
+        var drawfcl = false
 
         // поля плана
         request['plan_fields'] = ['lists.field.get']
@@ -425,12 +439,10 @@ function generatefact() {
             } else if(settypesf=="CL") {
                 // логика чек листов к задачам
                 request['fact_'+settypesf] = ['tasks.task.list']
-                requestparam['ORDER'] = { "ID": "DESC" }
-                requestparam['FILTER'] = {
-                    ">=CREATED_DATE": setdateendp,
+                requestparam['filter'] = {
+                    "<=CREATED_DATE":  datendft,
                     'RESPONSIBLE_ID': setuserf
                 }
-                requestparam['SELECT'] = ["*"]
                 request['fact_'+settypesf].push(requestparam)
             } else {
                 // логика анализа завершенных сделок
@@ -483,7 +495,12 @@ function generatefact() {
                 //resultplus["planv_"+settypesf]['answer']['result'].forEach(function (planel) {
                 //    resultarr[settypesf]['plan'] += Object.values(planel[planvaluefield])[0]
                 //})
-                var factarr = resultplus['fact_'+settypesf]['answer']['result']
+                //var factarr = resultplus['fact_'+settypesf]['answer']['result']
+                if(settypesf != "CL") {
+                    var factarr = resultplus['fact_'+settypesf]['answer']['result']
+                } else {
+                    var factarr = resultplus['fact_'+settypesf]['answer']['result']['tasks']
+                }
                 if(factarr.length>0) {
                     if (settypesf == "IC" || settypesf == "OC") {
                         factarr.forEach(function (fact) {
@@ -497,20 +514,84 @@ function generatefact() {
                     }
                     else if (settypesf == "CL") {
                         // анаализируем чек-листы
+                        drawfcl = true
+                        //console.log('Check list')
                         var requesttasks = {}
-                        var requesttasksparam = {}
+
                         var taskids = []
                         factarr.forEach(function (fact) {
                             taskids.push(fact.id)
                         })
+                        //console.log(taskids)
 
                         taskids.forEach(function(taskid) {
+                            var requesttasksparam = {}
+                            //console.log(taskid)
                             requesttasks['task_'+taskid] = ['task.checklistitem.getlist']
                             requesttasksparam['TASKID'] = taskid
+                            //console.log(requesttasksparam)
                             requesttasks['task_'+taskid].push(requesttasksparam)
                         })
                         // коллбэк тут
+                        console.log(requesttasks)
+                        BX24.callBatch(requesttasks, function (resultplustaskscl) {
+                            //console.log(resultplustaskscl)
+                            taskids.forEach(function(taskid) {
+                                var fullckecklist = true
+                                var maxdate = new Date(3600)
+                                dateend.setDate(dateend.getDate()-1)
+                                var arrcl = resultplustaskscl['task_'+taskid]['answer']['result']
+                                console.log(arrcl)
+                                if(arrcl.length>0) {
+                                    for (index = 0; index < arrcl.length; ++index) {
+                                        //console.log(arrcl[index])
+                                        var checklistitem = arrcl[index]
+                                        console.log(checklistitem)
+                                        if (checklistitem['IS_COMPLETE'] == 'N' && checklistitem['PARENT_ID'] != 0) {
+                                            fullckecklist = false
+                                            break
+                                        } else {
+                                            if (checklistitem['TOGGLED_DATE']) {
+                                                //var clday = checklistitem['TOGGLED_DATE']
+                                                var clday = +checklistitem['TOGGLED_DATE'].slice(8, 10)
+                                                //clday.replace(/^0+/, '')
+                                                //console.log(clday)
+                                                var clmonth = +checklistitem['TOGGLED_DATE'].slice(5, 7)
+                                                //clmonth.replace(/^0+/, '')
+                                                clmonth = Number(clmonth) - 1
+                                                //console.log(clmonth)
+                                                var clyear = checklistitem['TOGGLED_DATE'].slice(0, 4)
+                                                //console.log(clyear)
+                                                var checklistdate = new Date(clyear, clmonth, clday)
+                                                //console.log(checklistitem['TASK_ID'])
+                                                //console.log(checklistdate.getDate())
+                                                if (maxdate < checklistdate) {
+                                                        //console.log("more")
+                                                    maxdate = checklistdate
+                                                }
+                                            }
+                                        }
 
+                                    }
+                                    if (fullckecklist==true) {
+                                        //if(maxdate>=datebeg && maxdate<=dateend) {
+                                            //console.log(taskid)
+                                            var maxday = maxdate.getDate()
+                                            maxday = (maxday > 10) ? maxday : "0" + maxday
+                                            var maxmonth = maxdate.getMonth() + 1
+                                            maxmonth = (maxmonth > 10) ? maxmonth : "0" + maxmonth
+                                            var maxyear = maxdate.getFullYear()
+                                            var datecl = maxday + '.' + maxmonth + '.' + maxyear
+                                            if (resultarr[settypesf][datecl] == undefined) {
+                                                resultarr[settypesf][datecl] = 0
+                                            }
+                                            resultarr[settypesf][datecl] = Number(resultarr[settypesf][datecl]) + 1
+                                        //}
+                                    }
+                                }
+                            })
+                            drawfact(resultarr)
+                        })
                     } else {
                         factarr.forEach(function (fact) {
                             var listdate = Object.values(fact[factdatefield])[0]
@@ -524,13 +605,86 @@ function generatefact() {
                     }
                 }
             })
-            console.log(resultarr)
-            drawfact()
+            // стартуем функцию если нет чек-листа
+            if(drawfcl==false) {
+                //console.log(resultarr)
+                drawfact(resultarr)
+            }
         })
     }
 }
 
-function drawfact() {
+function drawfact(resultarr) {
+    var datebeg = $("#datepickerstart").datepicker( "getDate" )
+    var dateend = $("#datepickerfinish").datepicker( "getDate" )
+    var typename
+    settypesf = $("#typef").val()
+    console.log(resultarr)
     $("#resultfacttext").text("Отчет сформирован!")
+
+    //$("#resultfactdate").empty()
+    var manager = $("<p></p>").text("Менеджер "+ managername)
+    $("#resultfactdate").append(manager)
+    var table = $("<table></table>").attr("id", "tablefact").attr("name", "tablefact").attr("border", 1)
+    var tr = $("<tr></tr>")
+    tr.append($("<th></th>").text("Показатель"))
+    while(datebeg<=dateend) {
+        tr.append($("<th></th>").text(datebeg.getDate() + '.' + (datebeg.getMonth()+1)))
+        datebeg.setDate(datebeg.getDate()+1)
+    }
+    tr.append($("<th></th>").text("Факт"))
+    tr.append($("<th></th>").text("План"))
+    tr.append($("<th></th>").text("Выполнено %"))
+    tr.append($("<th></th>").text("Осталось %"))
+    table.append(tr)
+    //$.each(json,function(index,json){
+    //    select.append($("<option></option>").attr("value", json.value).text(json.text));
+    //});
+
+    $.each(settypesf,function(index,settypesf){
+        tr = $("<tr></tr>")
+        var totaltype = 0
+
+        $.each(types,function(index,types) {
+            if (types.value == settypesf) {
+                typename = types.text
+            }
+        })
+        tr.append($("<td></td>").text(typename))
+        datebeg = $("#datepickerstart").datepicker( "getDate" )
+        while(datebeg<=dateend) {
+            var sday = datebeg.getDate()
+            sday = (sday > 10) ? sday : "0" + sday
+            var smonth = datebeg.getMonth() + 1
+            smonth = (smonth > 10) ? smonth : "0" + smonth
+            var syear = datebeg.getFullYear()
+            var sdate = sday + '.' + smonth + '.' + syear
+            if(!resultarr[settypesf][sdate]) {
+                resultarr[settypesf][sdate] = 0
+            }
+            totaltype = Number(totaltype) + Number(resultarr[settypesf][sdate])
+            tr.append($("<td></td>").text(resultarr[settypesf][sdate]))
+
+            datebeg.setDate(datebeg.getDate()+1)
+        }
+        tr.append($("<td></td>").text(totaltype))
+        var plantype = resultarr[settypesf]['plan']
+        tr.append($("<td></td>").text(plantype))
+        if(totaltype>0) {
+            tr.append($("<td></td>").text(Math.floor(plantype / totaltype)))
+            tr.append($("<td></td>").text(100-Math.floor(plantype / totaltype)))
+        } else {
+            tr.append($("<td></td>").text('100'))
+            tr.append($("<td></td>").text('0'))
+        }
+        table.append(tr)
+
+    })
+    $("#resultfactdate").append(table);
+    var currentwidth = $(".tabs").width()
+    var tablewidth = $("#tablefact").width()+30
+    if(currentwidth < tablewidth) {
+        $(".tabs").width(tablewidth)
+    }
 }
 
