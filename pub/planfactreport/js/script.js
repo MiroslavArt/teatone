@@ -62,10 +62,11 @@ $(document).ready(function() {
         // Тексты
         $tabs.hide().eq($(this).index()).show().addClass(ACTIVE).siblings().removeClass(ACTIVE);
     });
+    var datep = new Date();
 
     // календари ввод значений
     $("#datepickerstart").datepicker()
-    $("#datepickerstart").datepicker( "setDate", new Date())
+    $("#datepickerstart").datepicker( "setDate", datep.getDate()-7)
     $("#datepickerfinish").datepicker()
     $("#datepickerfinish").datepicker( "setDate", new Date())
 
@@ -625,7 +626,7 @@ function drawfact(resultarr) {
     //$("#resultfactdate").empty()
     var manager = $("<p></p>").text("Менеджер "+ managername)
     $("#resultfactdate").append(manager)
-    var table = $("<table></table>").attr("id", "tablefact").attr("name", "tablefact").attr("border", 1)
+    var table = $("<table></table>").attr("id", "tablefact").attr("name", "tablefact").attr("border", 1).attr("cellspacing",0)
     var tr = $("<tr></tr>")
     tr.append($("<th></th>").text("Показатель"))
     while(datebeg<=dateend) {
@@ -671,11 +672,13 @@ function drawfact(resultarr) {
         var plantype = resultarr[settypesf]['plan']
         tr.append($("<td></td>").text(plantype))
         if(totaltype>0) {
-            tr.append($("<td></td>").text(Math.floor(plantype / totaltype)))
-            tr.append($("<td></td>").text(100-Math.floor(plantype / totaltype)))
+            var experc = totaltype / plantype
+            experc = Math.floor(experc * 100)
+            tr.append($("<td></td>").text(experc))
+            tr.append($("<td></td>").text(100-experc))
         } else {
-            tr.append($("<td></td>").text('100'))
             tr.append($("<td></td>").text('0'))
+            tr.append($("<td></td>").text('100'))
         }
         table.append(tr)
 
