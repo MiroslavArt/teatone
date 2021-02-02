@@ -24,6 +24,8 @@ var yearbegf
 var monthbegf
 var yearendf
 var monthendf
+var stepiter = 0
+
 
 $.datepicker.regional['ru'] = {
     closeText: 'Закрыть',
@@ -666,7 +668,7 @@ function generatefact() {
                                 }
                             })
                             if(Object.keys(iterations).length>0) {
-                                resultarr = additionalfact(resultarr, iterations)
+                                additionalfactfifty(resultarr, iterations)
                             } else {
                                 drawfact(resultarr)
                             }
@@ -689,7 +691,7 @@ function generatefact() {
             if(drawfcl==false) {
                 //console.log(resultarr)
                 if(Object.keys(iterations).length>0) {
-                    resultarr = additionalfact(resultarr, iterations)
+                    additionalfactfifty(resultarr, iterations)
                 } else {
                     drawfact(resultarr)
                 }
@@ -698,18 +700,23 @@ function generatefact() {
     }
 }
 
-function additionalfact(resultarr, iterations) {
-    //console.log(resultarr)
-    //console.log(iterations)
-    var request = {}
+// функция без ограничения в 50 записей в запросе
+function additionalfactfifty(resultarr, iterations) {
+    stepiter++
     var drawfcl = false
-    for(var iterkey in iterations) {
-        console.log(iterkey)
-        if(iterkey=="IC") {
-            // логика входящих звонков - исправить потом фильтр с датой
-            for(var i=1; i<=iterations[iterkey]; i++) {
+    console.log(iterations)
+    var arr = Object.keys( iterations ).map(function ( key ) { return iterations[key]; });
+    var maxiterations = Math.max.apply( null, arr )
+    var request = {}
+    console.log(maxiterations)
+    console.log(stepiter)
+    if(stepiter<=maxiterations) {
+        for(var iterkey in iterations) {
+            console.log(iterkey)
+            if(iterkey=="IC" && stepiter<=iterations[iterkey]) {
+                // логика входящих звонков - исправить потом фильтр с датой
                 var requestparam = {}
-                request['fact_' + iterkey + '_' +i] = ['crm.activity.list']
+                request['fact_' + iterkey] = ['crm.activity.list']
                 requestparam['ORDER'] = {"ID": "DESC"}
                 requestparam['FILTER'] = {
                     "TYPE_ID": 2,
@@ -718,14 +725,12 @@ function additionalfact(resultarr, iterations) {
                 }
                 requestparam['SELECT'] = ["*"]
                 requestparam['SELECT'] = ["*"]
-                requestparam['start'] = 50*i
-                request['fact_' + iterkey + '_' +i].push(requestparam)
-            }
-        } else if(iterkey=="OC") {
-            // логика исходящих звонков - исправить потом фильтр с датой
-            for(var i=1; i<=iterations[iterkey]; i++) {
+                requestparam['start'] = 50*stepiter
+                request['fact_' + iterkey].push(requestparam)
+            } else if(iterkey=="OC" && stepiter<=iterations[iterkey]) {
+                // логика исходящих звонков - исправить потом фильтр с датой
                 var requestparam = {}
-                request['fact_' + iterkey + '_' + i] = ['crm.activity.list']
+                request['fact_' + iterkey] = ['crm.activity.list']
                 requestparam['ORDER'] = {"ID": "DESC"}
                 requestparam['FILTER'] = {
                     "TYPE_ID": 2,
@@ -733,160 +738,168 @@ function additionalfact(resultarr, iterations) {
                     'AUTHOR_ID': setuserf, "DIRECTION": 2
                 }
                 requestparam['SELECT'] = ["*"]
-                requestparam['start'] = 50*i
-                request['fact_' + iterkey + '_' + i].push(requestparam)
-            }
-        } else if(iterkey=="CL") {
-            for(var i=1; i<=iterations[iterkey]; i++) {
+                requestparam['start'] = 50*stepiter
+                request['fact_' + iterkey].push(requestparam)
+            } else if(iterkey=="CL" && stepiter<=iterations[iterkey]) {
                 var requestparam = {}
-                request['fact_' + iterkey + '_' + i] = ['tasks.task.list']
+                request['fact_' + iterkey] = ['tasks.task.list']
                 requestparam['filter'] = {
                     "<=CREATED_DATE": datendft,
                     'RESPONSIBLE_ID': setuserf
                 }
-                requestparam['start'] = 50*i
-                request['fact_' + iterkey + '_' + i].push(requestparam)
-            }
-        } else {
-            // логика анализа завершенных сделок
-            for(var i=1; i<=iterations[iterkey]; i++) {
-                var requestparam = {}
-                request['fact_' + iterkey + '_' + i] = ['lists.element.get']
-                requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
-                requestparam['IBLOCK_CODE'] = 'listfacts' + options.groups.planfact
-                requestparam['SOCNET_GROUP_ID'] = options.groups.planfact
-                requestparam['FILTER'] = {
-                    ">=DATE_CREATE": setdatebegf,
-                    "<=DATE_CREATE": datendft,
-                    "PROPERTY_TYPE": iterkey,
-                    "PROPERTY_EMPLOYEE": setuserf
+                requestparam['start'] = 50*stepiter
+                request['fact_' + iterkey].push(requestparam)
+            } else {
+                if(stepiter<=iterations[iterkey]) {
+                    // логика анализа завершенных сделок
+                    request['fact_' + iterkey] = ['lists.element.get']
+                    requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
+                    requestparam['IBLOCK_CODE'] = 'listfacts' + options.groups.planfact
+                    requestparam['SOCNET_GROUP_ID'] = options.groups.planfact
+                    requestparam['FILTER'] = {
+                        ">=DATE_CREATE": setdatebegf,
+                        "<=DATE_CREATE": datendft,
+                        "PROPERTY_TYPE": iterkey,
+                        "PROPERTY_EMPLOYEE": setuserf
+                    }
+                    requestparam['start'] = 50 * stepiter
+                    request['fact_' + iterkey].push(requestparam)
                 }
-                requestparam['start'] = 50*i
-                request['fact_' + iterkey + '_' + i].push(requestparam)
             }
         }
-    }
-    console.log(request)
-    BX24.callBatch(request, function (resultiterations) {
-        console.log(resultiterations)
-        for(var iterkey in iterations) {
-            console.log(iterkey)
-            if(iterkey=="IC" || iterkey=="OC") {
-                // логика входящих звонков - исправить потом фильтр с датой
-                for(var i=1; i<=iterations[iterkey]; i++) {
-                    var factarr = resultiterations['fact_' + iterkey + '_' +i]['answer']['result']
-                    factarr.forEach(function (fact) {
-                        var datefact = fact['START_TIME'].slice(8,10) + '.' + fact['START_TIME'].slice(5,7) +
-                            '.' + fact['START_TIME'].slice(0,4)
-                        if(resultarr[iterkey][datefact]==undefined) {
-                            resultarr[iterkey][datefact] = 0
+        console.log(request)
+        BX24.callBatch(request, function (resultiterations) {
+            console.log(resultiterations)
+            for(var iterkey in iterations) {
+                console.log(iterkey)
+                if(iterkey=="IC" || iterkey=="OC") {
+                    // логика входящих звонков - исправить потом фильтр с датой
+                    if(resultiterations['fact_' + iterkey]!=undefined) {
+                        var factarr = resultiterations['fact_' + iterkey]['answer']['result']
+                        if (factarr.length > 0) {
+                            factarr.forEach(function (fact) {
+                                var datefact = fact['START_TIME'].slice(8, 10) + '.' + fact['START_TIME'].slice(5, 7) +
+                                    '.' + fact['START_TIME'].slice(0, 4)
+                                if (resultarr[iterkey][datefact] == undefined) {
+                                    resultarr[iterkey][datefact] = 0
+                                }
+                                resultarr[iterkey][datefact] = Number(resultarr[iterkey][datefact]) + 1
+                            })
                         }
-                        resultarr[iterkey][datefact] = Number(resultarr[iterkey][datefact]) + 1
-                    })
-                }
-            } else if(iterkey=="CL") {
-                drawfcl = true
-                var taskids = []
-                var requesttasks = {}
-                for(var i=1; i<=iterations[iterkey]; i++) {
-                    var factarr = resultiterations['fact_' + iterkey + '_' + i]['answer']['result']['tasks']
-                    factarr.forEach(function (fact) {
-                        taskids.push(fact.id)
-                    })
-                }
-                var totaltask = taskids.length;
-                var taskiter = 0
-                taskids.forEach(function(taskid) {
-                    var requesttasksparam = {}
-                    //console.log(taskid)
-                    requesttasks['task_'+taskid] = ['task.checklistitem.getlist']
-                    requesttasksparam['TASKID'] = taskid
-                    //console.log(requesttasksparam)
-                    requesttasks['task_'+taskid].push(requesttasksparam)
-                })
-                // коллбэк тут
-                //console.log(requesttasks)
-                BX24.callBatch(requesttasks, function (resultplustaskscl) {
-                    //console.log(resultplustaskscl)
-                    taskids.forEach(function(taskid) {
-                        taskiter++
-                        var fullckecklist = true
-                        var maxdate = new Date(3600)
-                        //dateend.setDate(dateend.getDate()-1)
-                        var arrcl = resultplustaskscl['task_'+taskid]['answer']['result']
-                        //console.log(arrcl)
-                        if(arrcl.length>0) {
-                            for (index = 0; index < arrcl.length; ++index) {
-                                //console.log(arrcl[index])
-                                var checklistitem = arrcl[index]
-                                //console.log(checklistitem)
-                                if (checklistitem['IS_COMPLETE'] == 'N' && checklistitem['PARENT_ID'] != 0) {
-                                    fullckecklist = false
-                                    break
-                                } else {
-                                    if (checklistitem['TOGGLED_DATE']) {
-                                        //var clday = checklistitem['TOGGLED_DATE']
-                                        var clday = +checklistitem['TOGGLED_DATE'].slice(8, 10)
-                                        //clday.replace(/^0+/, '')
-                                        //console.log(clday)
-                                        var clmonth = +checklistitem['TOGGLED_DATE'].slice(5, 7)
-                                        //clmonth.replace(/^0+/, '')
-                                        clmonth = Number(clmonth) - 1
-                                        //console.log(clmonth)
-                                        var clyear = checklistitem['TOGGLED_DATE'].slice(0, 4)
-                                        //console.log(clyear)
-                                        var checklistdate = new Date(clyear, clmonth, clday)
-                                        //console.log(checklistitem['TASK_ID'])
-                                        //console.log(checklistdate.getDate())
-                                        if (maxdate < checklistdate) {
-                                            //console.log("more")
-                                            maxdate = checklistdate
+                    }
+                } else if(iterkey=="CL") {
+                    if(resultiterations['fact_' + iterkey]!=undefined) {
+                        var factarr = resultiterations['fact_' + iterkey]['answer']['result']['tasks']
+                        if (factarr.length > 0) {
+                            var taskids = []
+                            var requesttasks = {}
+                            drawfcl = true
+                            factarr.forEach(function (fact) {
+                                taskids.push(fact.id)
+                            })
+                            var totaltask = taskids.length;
+                            var taskiter = 0
+                            taskids.forEach(function (taskid) {
+                                var requesttasksparam = {}
+                                //console.log(taskid)
+                                requesttasks['task_' + taskid] = ['task.checklistitem.getlist']
+                                requesttasksparam['TASKID'] = taskid
+                                //console.log(requesttasksparam)
+                                requesttasks['task_' + taskid].push(requesttasksparam)
+                            })
+                            // коллбэк тут
+                            console.log(requesttasks)
+                            BX24.callBatch(requesttasks, function (resultplustaskscl) {
+                                console.log(resultplustaskscl)
+                                taskids.forEach(function (taskid) {
+                                    taskiter++
+                                    var fullckecklist = true
+                                    var maxdate = new Date(3600)
+                                    //dateend.setDate(dateend.getDate()-1)
+                                    var arrcl = resultplustaskscl['task_' + taskid]['answer']['result']
+                                    //console.log(arrcl)
+                                    if (arrcl.length > 0) {
+                                        for (index = 0; index < arrcl.length; ++index) {
+                                            //console.log(arrcl[index])
+                                            var checklistitem = arrcl[index]
+                                            //console.log(checklistitem)
+                                            if (checklistitem['IS_COMPLETE'] == 'N' && checklistitem['PARENT_ID'] != 0) {
+                                                fullckecklist = false
+                                                break
+                                            } else {
+                                                if (checklistitem['TOGGLED_DATE']) {
+                                                    //var clday = checklistitem['TOGGLED_DATE']
+                                                    var clday = +checklistitem['TOGGLED_DATE'].slice(8, 10)
+                                                    //clday.replace(/^0+/, '')
+                                                    //console.log(clday)
+                                                    var clmonth = +checklistitem['TOGGLED_DATE'].slice(5, 7)
+                                                    //clmonth.replace(/^0+/, '')
+                                                    clmonth = Number(clmonth) - 1
+                                                    //console.log(clmonth)
+                                                    var clyear = checklistitem['TOGGLED_DATE'].slice(0, 4)
+                                                    //console.log(clyear)
+                                                    var checklistdate = new Date(clyear, clmonth, clday)
+                                                    //console.log(checklistitem['TASK_ID'])
+                                                    //console.log(checklistdate.getDate())
+                                                    if (maxdate < checklistdate) {
+                                                        //console.log("more")
+                                                        maxdate = checklistdate
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                        if (fullckecklist == true) {
+                                            //if(maxdate>=datebeg && maxdate<=dateend) {
+                                            //console.log(taskid)
+                                            var maxday = maxdate.getDate()
+                                            maxday = (maxday > 10) ? maxday : "0" + maxday
+                                            var maxmonth = maxdate.getMonth() + 1
+                                            maxmonth = (maxmonth > 10) ? maxmonth : "0" + maxmonth
+                                            var maxyear = maxdate.getFullYear()
+                                            var datecl = maxday + '.' + maxmonth + '.' + maxyear
+                                            if (resultarr[iterkey][datecl] == undefined) {
+                                                resultarr[iterkey][datecl] = 0
+                                            }
+                                            resultarr[iterkey][datecl] = Number(resultarr[iterkey][datecl]) + 1
+                                            //}
                                         }
                                     }
+
+                                })
+                                if (stepiter < maxiterations && drawfcl == true) {
+                                    additionalfactfifty(resultarr, iterations)
+                                } else if (stepiter == maxiterations && drawfcl == true) {
+                                    drawfact(resultarr)
                                 }
 
-                            }
-                            if (fullckecklist==true) {
-                                //if(maxdate>=datebeg && maxdate<=dateend) {
-                                //console.log(taskid)
-                                var maxday = maxdate.getDate()
-                                maxday = (maxday > 10) ? maxday : "0" + maxday
-                                var maxmonth = maxdate.getMonth() + 1
-                                maxmonth = (maxmonth > 10) ? maxmonth : "0" + maxmonth
-                                var maxyear = maxdate.getFullYear()
-                                var datecl = maxday + '.' + maxmonth + '.' + maxyear
-                                if (resultarr[iterkey][datecl] == undefined) {
-                                    resultarr[iterkey][datecl] = 0
-                                }
-                                resultarr[iterkey][datecl] = Number(resultarr[iterkey][datecl]) + 1
-                                //}
-                            }
+                            })
                         }
-                        if(taskiter==totaltask) {
-                            drawfact(resultarr)
-                        }
-                    })
-                })
-            } else {
-                // логика анализа сделок
-                for(var i=1; i<=iterations[iterkey]; i++) {
-                    var factarr = resultiterations['fact_' + iterkey + '_' +i]['answer']['result']
-                    var listdate = Object.values(fact[factdatefield])[0]
-                    if(resultarr[iterkey][listdate]==undefined) {
-                        resultarr[iterkey][listdate] = 0
                     }
-                    resultarr[iterkey][listdate] = Number(resultarr[iterkey][listdate])
-                        + Number(Object.values(fact[factvaluefield])[0])
+                } else {
+                    // логика анализа сделок
+                    if (resultiterations['fact_' + iterkey] != undefined) {
+                        var factarr = resultiterations['fact_' + iterkey]['answer']['result']
+                        var listdate = Object.values(fact[factdatefield])[0]
+                        if (resultarr[iterkey][listdate] == undefined) {
+                            resultarr[iterkey][listdate] = 0
+                        }
+                        resultarr[iterkey][listdate] = Number(resultarr[iterkey][listdate])
+                            + Number(Object.values(fact[factvaluefield])[0])
+                    }
                 }
             }
-        }
-        if(drawfcl==false) {
-            drawfact(resultarr)
-        }
-    })
+            if(stepiter<maxiterations && drawfcl == false) {
+                additionalfactfifty(resultarr, iterations)
+            } else if(stepiter==maxiterations && drawfcl == false) {
+                drawfact(resultarr)
+            }
+        })
+    }
 }
 
 function drawfact(resultarr) {
+    stepiter = 0
     datebeg = $("#datepickerstart").datepicker( "getDate" )
     dateend = $("#datepickerfinish").datepicker( "getDate" )
     var typename
