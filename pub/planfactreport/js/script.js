@@ -1,23 +1,29 @@
-var options = {};
-var setuser;
-var settype;
-var setyear;
-var setdatebegf;
-var setdateendp;
-var setuserf;
-var managername;
-var settypesf = [];
-var explan = [];
-var types = [];
-var planvaluefield;
-var planmonthfield;
-var plantypefield;
-var planuserfield;
-var planyearfield;
-var factvaluefield;
-var factdatefield;
-var users = [];
-var maxtablewidth = 600;
+var options = {}
+var setuser
+var settype
+var setyear
+var setdatebegf
+var setdateendp
+var setuserf
+var managername
+var settypesf = []
+var explan = []
+var types = []
+var planvaluefield
+var planmonthfield
+var plantypefield
+var planuserfield
+var planyearfield
+var factvaluefield
+var factdatefield
+var users = []
+var datendft
+var datebeg
+var dateend
+var yearbegf
+var monthbegf
+var yearendf
+var monthendf
 
 $.datepicker.regional['ru'] = {
     closeText: 'Закрыть',
@@ -130,10 +136,64 @@ $(document).ready(function() {
         {value: "IC", text: "Входящие звонки"},
         {value: "OC", text: "Исходящие звонки"},
         {value: "CL", text: "Заполненные чек-листы"},
-        {value: "SL", text: "Сумма отгрузок"}
+        {value: "SL", text: "Сумма отгрузок(все воронки)"}
     ];
 
+
     BX24.callBatch({
+        list_dls: ['crm.dealcategory.list',
+            {
+            }
+        ]
+    }, function (resultdealscat) {
+        var stagesrequest = {}
+        var stagesrequestparam = {}
+        stagesrequest['stages_fields_gen'] = ['crm.dealcategory.stage.list']
+        stagesrequest['stages_fields_gen'].push(stagesrequestparam)
+
+        var liststunnels = resultdealscat.list_dls.answer.result
+
+        if(liststunnels.length>0) {
+            liststunnels.forEach(function (tunnel) {
+                stagesrequestparam = {}
+                stagesrequest['stages_fields_'+1] = ['crm.dealcategory.stage.list']
+                stagesrequestparam['id'] = tunnel['ID']
+                stagesrequest['stages_fields_'+1].push(stagesrequestparam)
+            })
+        }
+        BX24.callBatch(stagesrequest, function (resultdealsstages) {
+            console.log(resultdealsstages)
+            BX24.callBatch(stagesrequest, function (resultdealsstages) {
+                console.log(resultdealsstages)
+                for (var tunnelres in resultdealsstages) {
+                    resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
+                        let objstage = {value: restunnel['STATUS_ID'], text: "Переходы на этап " + restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
+                        types.push(objstage)
+                        }
+                    )
+                }
+                var select3 = $("<select></select>").attr("id", "type").attr("name", "type");
+                $.each(types,function(index,types){
+                    //console.log(json)
+                    select3.append($("<option></option>").attr("value", types.value).text(types.text));
+                });
+                $("#types").html(select3);
+                $("#type :first").attr("selected", "selected");
+
+                var select4 = $("<select></select>").attr("id", "typef").attr("name", "typef").attr("multiple", "multiple");
+                $.each(types,function(index,types){
+                    //console.log(json)
+                    select4.append($("<option></option>").attr("value", types.value).text(types.text));
+                });
+                $("#typesf").html(select4);
+                $("#typef :first").attr("selected", "selected");
+            })
+
+        })
+    })
+
+    // стадии, если воронка одна
+    /*BX24.callBatch({
         deal_cat: ['crm.dealcategory.stage.list',
             {
             }
@@ -145,6 +205,9 @@ $(document).ready(function() {
             var length=types.push(objuser)
 
         })
+
+
+
         var select3 = $("<select></select>").attr("id", "type").attr("name", "type");
         $.each(types,function(index,types){
             //console.log(json)
@@ -160,7 +223,7 @@ $(document).ready(function() {
         });
         $("#typesf").html(select4);
         $("#typef :first").attr("selected", "selected");
-    });
+    });*/
 
     // событие кнопки сформировать план
     $("#btnSubmitplan").click(function(){
@@ -345,12 +408,13 @@ function generateplan() {
 
 function generatefact() {
     // забираем данные с формы
-    var datebeg = $("#datepickerstart").datepicker( "getDate" )
-    var dateend = $("#datepickerfinish").datepicker( "getDate" )
-    var yearbegf = datebeg.getFullYear()
-    var monthbegf = datebeg.getMonth()+1
-    var yearendf = dateend.getFullYear()
-    var monthendf = dateend.getMonth()+1
+    datebeg = $("#datepickerstart").datepicker( "getDate" )
+    dateend = $("#datepickerfinish").datepicker( "getDate" )
+    yearbegf = datebeg.getFullYear()
+    monthbegf = datebeg.getMonth()+1
+    yearendf = dateend.getFullYear()
+    monthendf = dateend.getMonth()+1
+    var iterations = {}
     setdatebegf = $("#datepickerstart").val()
     setdateendp = $("#datepickerfinish").val()
     setuserf = $("#userf").val()
@@ -367,8 +431,8 @@ function generatefact() {
         return false
     } else {
         dateend.setDate(dateend.getDate()+1)
-        var datendft  = dateend.getDate()+'.'+(dateend.getMonth()+1)+'.'+dateend.getFullYear()
-        console.log(datendft)
+        datendft  = dateend.getDate()+'.'+(dateend.getMonth()+1)+'.'+dateend.getFullYear()
+        //console.log(datendft)
         var resultarr = {};
         var request = {}
         var requestparam = {}
@@ -399,7 +463,7 @@ function generatefact() {
         // собираем первоначальный батч
         $.each(settypesf,function(index,settypesf){
             resultarr[settypesf] = {}
-            console.log(settypesf)
+            //console.log(settypesf)
             requestparam = {}
             request['planv_'+settypesf] = ['lists.element.get']
             requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
@@ -462,9 +526,9 @@ function generatefact() {
         });
 
         // делаем запрос
-        console.log(request)
+        //console.log(request)
         BX24.callBatch(request, function (resultplus) {
-            console.log(resultplus)
+            //console.log(resultplus)
             var fields = resultplus.fact_fields.answer.result
             for(var key in fields) {
                 //console.log(fields[key])
@@ -482,26 +546,36 @@ function generatefact() {
                     planvaluefield = fields[key]['FIELD_ID']
                 }
             }
-
+            //console.log(resultplus)
             $.each(settypesf,function(index,settypesf){
                 // забираем план по первым 50-ти записям
-                console.log(settypesf)
-                console.log(resultplus["planv_"+settypesf]['answer']['result'])
+                //console.log(settypesf)
+                //console.log(resultplus["planv_"+settypesf]['answer']['result'])
+
+
                 var planarr = resultplus["planv_"+settypesf]['answer']['result']
                 resultarr[settypesf]['plan'] = 0
                 planarr.forEach(function (plan) {
-                    console.log(plan)
+                    //console.log(plan)
                     resultarr[settypesf]['plan'] = Number(resultarr[settypesf]['plan']) + Number(Object.values(plan[planvaluefield])[0])
                 })
                 //resultplus["planv_"+settypesf]['answer']['result'].forEach(function (planel) {
                 //    resultarr[settypesf]['plan'] += Object.values(planel[planvaluefield])[0]
                 //})
                 //var factarr = resultplus['fact_'+settypesf]['answer']['result']
+                var totalusers = resultplus['fact_'+settypesf]['answer']['total'];
+                if(totalusers >= 50) {
+                    iterations[settypesf] = Math.floor(totalusers/50)
+                }
+
                 if(settypesf != "CL") {
                     var factarr = resultplus['fact_'+settypesf]['answer']['result']
                 } else {
                     var factarr = resultplus['fact_'+settypesf]['answer']['result']['tasks']
                 }
+
+
+
                 if(factarr.length>0) {
                     if (settypesf == "IC" || settypesf == "OC") {
                         factarr.forEach(function (fact) {
@@ -534,7 +608,7 @@ function generatefact() {
                             requesttasks['task_'+taskid].push(requesttasksparam)
                         })
                         // коллбэк тут
-                        console.log(requesttasks)
+                        //console.log(requesttasks)
                         BX24.callBatch(requesttasks, function (resultplustaskscl) {
                             //console.log(resultplustaskscl)
                             taskids.forEach(function(taskid) {
@@ -542,12 +616,12 @@ function generatefact() {
                                 var maxdate = new Date(3600)
                                 dateend.setDate(dateend.getDate()-1)
                                 var arrcl = resultplustaskscl['task_'+taskid]['answer']['result']
-                                console.log(arrcl)
+                                //console.log(arrcl)
                                 if(arrcl.length>0) {
                                     for (index = 0; index < arrcl.length; ++index) {
                                         //console.log(arrcl[index])
                                         var checklistitem = arrcl[index]
-                                        console.log(checklistitem)
+                                        //console.log(checklistitem)
                                         if (checklistitem['IS_COMPLETE'] == 'N' && checklistitem['PARENT_ID'] != 0) {
                                             fullckecklist = false
                                             break
@@ -591,7 +665,12 @@ function generatefact() {
                                     }
                                 }
                             })
-                            drawfact(resultarr)
+                            if(Object.keys(iterations).length>0) {
+                                resultarr = additionalfact(resultarr, iterations)
+                            } else {
+                                drawfact(resultarr)
+                            }
+
                         })
                     } else {
                         factarr.forEach(function (fact) {
@@ -609,15 +688,207 @@ function generatefact() {
             // стартуем функцию если нет чек-листа
             if(drawfcl==false) {
                 //console.log(resultarr)
-                drawfact(resultarr)
+                if(Object.keys(iterations).length>0) {
+                    resultarr = additionalfact(resultarr, iterations)
+                } else {
+                    drawfact(resultarr)
+                }
             }
         })
     }
 }
 
+function additionalfact(resultarr, iterations) {
+    //console.log(resultarr)
+    //console.log(iterations)
+    var request = {}
+    var drawfcl = false
+    for(var iterkey in iterations) {
+        console.log(iterkey)
+        if(iterkey=="IC") {
+            // логика входящих звонков - исправить потом фильтр с датой
+            for(var i=1; i<=iterations[iterkey]; i++) {
+                var requestparam = {}
+                request['fact_' + iterkey + '_' +i] = ['crm.activity.list']
+                requestparam['ORDER'] = {"ID": "DESC"}
+                requestparam['FILTER'] = {
+                    "TYPE_ID": 2,
+                    ">=START_TIME": setdatebegf, "<=END_TIME": datendft,
+                    'AUTHOR_ID': setuserf, "DIRECTION": 1
+                }
+                requestparam['SELECT'] = ["*"]
+                requestparam['SELECT'] = ["*"]
+                requestparam['start'] = 50*i
+                request['fact_' + iterkey + '_' +i].push(requestparam)
+            }
+        } else if(iterkey=="OC") {
+            // логика исходящих звонков - исправить потом фильтр с датой
+            for(var i=1; i<=iterations[iterkey]; i++) {
+                var requestparam = {}
+                request['fact_' + iterkey + '_' + i] = ['crm.activity.list']
+                requestparam['ORDER'] = {"ID": "DESC"}
+                requestparam['FILTER'] = {
+                    "TYPE_ID": 2,
+                    ">=START_TIME": setdatebegf, "<=END_TIME": datendft,
+                    'AUTHOR_ID': setuserf, "DIRECTION": 2
+                }
+                requestparam['SELECT'] = ["*"]
+                requestparam['start'] = 50*i
+                request['fact_' + iterkey + '_' + i].push(requestparam)
+            }
+        } else if(iterkey=="CL") {
+            for(var i=1; i<=iterations[iterkey]; i++) {
+                var requestparam = {}
+                request['fact_' + iterkey + '_' + i] = ['tasks.task.list']
+                requestparam['filter'] = {
+                    "<=CREATED_DATE": datendft,
+                    'RESPONSIBLE_ID': setuserf
+                }
+                requestparam['start'] = 50*i
+                request['fact_' + iterkey + '_' + i].push(requestparam)
+            }
+        } else {
+            // логика анализа завершенных сделок
+            for(var i=1; i<=iterations[iterkey]; i++) {
+                var requestparam = {}
+                request['fact_' + iterkey + '_' + i] = ['lists.element.get']
+                requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
+                requestparam['IBLOCK_CODE'] = 'listfacts' + options.groups.planfact
+                requestparam['SOCNET_GROUP_ID'] = options.groups.planfact
+                requestparam['FILTER'] = {
+                    ">=DATE_CREATE": setdatebegf,
+                    "<=DATE_CREATE": datendft,
+                    "PROPERTY_TYPE": iterkey,
+                    "PROPERTY_EMPLOYEE": setuserf
+                }
+                requestparam['start'] = 50*i
+                request['fact_' + iterkey + '_' + i].push(requestparam)
+            }
+        }
+    }
+    console.log(request)
+    BX24.callBatch(request, function (resultiterations) {
+        console.log(resultiterations)
+        for(var iterkey in iterations) {
+            console.log(iterkey)
+            if(iterkey=="IC" || iterkey=="OC") {
+                // логика входящих звонков - исправить потом фильтр с датой
+                for(var i=1; i<=iterations[iterkey]; i++) {
+                    var factarr = resultiterations['fact_' + iterkey + '_' +i]['answer']['result']
+                    factarr.forEach(function (fact) {
+                        var datefact = fact['START_TIME'].slice(8,10) + '.' + fact['START_TIME'].slice(5,7) +
+                            '.' + fact['START_TIME'].slice(0,4)
+                        if(resultarr[iterkey][datefact]==undefined) {
+                            resultarr[iterkey][datefact] = 0
+                        }
+                        resultarr[iterkey][datefact] = Number(resultarr[iterkey][datefact]) + 1
+                    })
+                }
+            } else if(iterkey=="CL") {
+                drawfcl = true
+                var taskids = []
+                var requesttasks = {}
+                for(var i=1; i<=iterations[iterkey]; i++) {
+                    var factarr = resultiterations['fact_' + iterkey + '_' + i]['answer']['result']['tasks']
+                    factarr.forEach(function (fact) {
+                        taskids.push(fact.id)
+                    })
+                }
+                var totaltask = taskids.length;
+                var taskiter = 0
+                taskids.forEach(function(taskid) {
+                    var requesttasksparam = {}
+                    //console.log(taskid)
+                    requesttasks['task_'+taskid] = ['task.checklistitem.getlist']
+                    requesttasksparam['TASKID'] = taskid
+                    //console.log(requesttasksparam)
+                    requesttasks['task_'+taskid].push(requesttasksparam)
+                })
+                // коллбэк тут
+                //console.log(requesttasks)
+                BX24.callBatch(requesttasks, function (resultplustaskscl) {
+                    //console.log(resultplustaskscl)
+                    taskids.forEach(function(taskid) {
+                        taskiter++
+                        var fullckecklist = true
+                        var maxdate = new Date(3600)
+                        //dateend.setDate(dateend.getDate()-1)
+                        var arrcl = resultplustaskscl['task_'+taskid]['answer']['result']
+                        //console.log(arrcl)
+                        if(arrcl.length>0) {
+                            for (index = 0; index < arrcl.length; ++index) {
+                                //console.log(arrcl[index])
+                                var checklistitem = arrcl[index]
+                                //console.log(checklistitem)
+                                if (checklistitem['IS_COMPLETE'] == 'N' && checklistitem['PARENT_ID'] != 0) {
+                                    fullckecklist = false
+                                    break
+                                } else {
+                                    if (checklistitem['TOGGLED_DATE']) {
+                                        //var clday = checklistitem['TOGGLED_DATE']
+                                        var clday = +checklistitem['TOGGLED_DATE'].slice(8, 10)
+                                        //clday.replace(/^0+/, '')
+                                        //console.log(clday)
+                                        var clmonth = +checklistitem['TOGGLED_DATE'].slice(5, 7)
+                                        //clmonth.replace(/^0+/, '')
+                                        clmonth = Number(clmonth) - 1
+                                        //console.log(clmonth)
+                                        var clyear = checklistitem['TOGGLED_DATE'].slice(0, 4)
+                                        //console.log(clyear)
+                                        var checklistdate = new Date(clyear, clmonth, clday)
+                                        //console.log(checklistitem['TASK_ID'])
+                                        //console.log(checklistdate.getDate())
+                                        if (maxdate < checklistdate) {
+                                            //console.log("more")
+                                            maxdate = checklistdate
+                                        }
+                                    }
+                                }
+
+                            }
+                            if (fullckecklist==true) {
+                                //if(maxdate>=datebeg && maxdate<=dateend) {
+                                //console.log(taskid)
+                                var maxday = maxdate.getDate()
+                                maxday = (maxday > 10) ? maxday : "0" + maxday
+                                var maxmonth = maxdate.getMonth() + 1
+                                maxmonth = (maxmonth > 10) ? maxmonth : "0" + maxmonth
+                                var maxyear = maxdate.getFullYear()
+                                var datecl = maxday + '.' + maxmonth + '.' + maxyear
+                                if (resultarr[iterkey][datecl] == undefined) {
+                                    resultarr[iterkey][datecl] = 0
+                                }
+                                resultarr[iterkey][datecl] = Number(resultarr[iterkey][datecl]) + 1
+                                //}
+                            }
+                        }
+                        if(taskiter==totaltask) {
+                            drawfact(resultarr)
+                        }
+                    })
+                })
+            } else {
+                // логика анализа сделок
+                for(var i=1; i<=iterations[iterkey]; i++) {
+                    var factarr = resultiterations['fact_' + iterkey + '_' +i]['answer']['result']
+                    var listdate = Object.values(fact[factdatefield])[0]
+                    if(resultarr[iterkey][listdate]==undefined) {
+                        resultarr[iterkey][listdate] = 0
+                    }
+                    resultarr[iterkey][listdate] = Number(resultarr[iterkey][listdate])
+                        + Number(Object.values(fact[factvaluefield])[0])
+                }
+            }
+        }
+        if(drawfcl==false) {
+            drawfact(resultarr)
+        }
+    })
+}
+
 function drawfact(resultarr) {
-    var datebeg = $("#datepickerstart").datepicker( "getDate" )
-    var dateend = $("#datepickerfinish").datepicker( "getDate" )
+    datebeg = $("#datepickerstart").datepicker( "getDate" )
+    dateend = $("#datepickerfinish").datepicker( "getDate" )
     var typename
     settypesf = $("#typef").val()
     console.log(resultarr)
@@ -669,16 +940,19 @@ function drawfact(resultarr) {
             datebeg.setDate(datebeg.getDate()+1)
         }
         tr.append($("<td></td>").text(totaltype))
-        var plantype = resultarr[settypesf]['plan']
+        var plantype = Number(resultarr[settypesf]['plan'])
         tr.append($("<td></td>").text(plantype))
-        if(totaltype>0) {
+        if(totaltype>0 && plantype>0) {
             var experc = totaltype / plantype
             experc = Math.floor(experc * 100)
             tr.append($("<td></td>").text(experc))
             tr.append($("<td></td>").text(100-experc))
-        } else {
+        } else if (totaltype==0 && plantype>0) {
             tr.append($("<td></td>").text('0'))
             tr.append($("<td></td>").text('100'))
+        } else {
+            tr.append($("<td></td>").text('100'))
+            tr.append($("<td></td>").text('0'))
         }
         table.append(tr)
 

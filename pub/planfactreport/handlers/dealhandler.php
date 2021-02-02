@@ -67,8 +67,9 @@ foreach($out['result']['result']['get_fields'] as $key => $fieldval) {
         $propasn = $key;
     }
 }
-
-if($stage != 'WON') {
+// поправить
+//if($stage != 'WON') {
+if(strpos($stage, 'WON')) {
     $params = array(
         'add_value' => 'lists.element.add?'
             . http_build_query(array(
