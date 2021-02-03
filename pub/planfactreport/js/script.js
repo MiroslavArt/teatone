@@ -4,8 +4,8 @@ var settype
 var setyear
 var setdatebegf
 var setdateendp
-var setuserf
-var managername
+//var setusersf
+//var managername
 var settypesf = []
 var explan = []
 var types = []
@@ -234,7 +234,10 @@ $(document).ready(function() {
 
     // событие кнопки сформировать факт
     $("#btnSubmitfact").click(function(){
-        generatefact()
+        var setusersf = $("#userf").val()
+        setusersf.forEach(function (setuserf) {
+            generatefact(setuserf)
+        })
     });
 
     // событие кнопки очистки факта
@@ -260,7 +263,7 @@ function arrayuserfill(users) {
     $("#employees").html(select2);
     $("#user :first").attr("selected", "selected");
 
-    var select3 = $("<select></select>").attr("id", "userf").attr("name", "userf");
+    var select3 = $("<select></select>").attr("id", "userf").attr("name", "userf").attr("multiple", "multiple");
     $.each(users,function(index,users){
         //console.log(users)
         select3.append($("<option></option>").attr("value", users.value).text(users.text));
@@ -408,7 +411,7 @@ function generateplan() {
     });
 }
 
-function generatefact() {
+function generatefact(setuserf) {
     // забираем данные с формы
     datebeg = $("#datepickerstart").datepicker( "getDate" )
     dateend = $("#datepickerfinish").datepicker( "getDate" )
@@ -419,8 +422,8 @@ function generatefact() {
     var iterations = {}
     setdatebegf = $("#datepickerstart").val()
     setdateendp = $("#datepickerfinish").val()
-    setuserf = $("#userf").val()
-    managername = $("#userf option:selected").text()
+    //setuserf = $("#userf").val()
+    //managername = $("#userf option:selected").text()
     settypesf = $("#typef").val()
 
     if(setdatebegf=="" || setdatebegf=="") {
@@ -668,9 +671,9 @@ function generatefact() {
                                 }
                             })
                             if(Object.keys(iterations).length>0) {
-                                additionalfactfifty(resultarr, iterations)
+                                additionalfactfifty(resultarr, iterations, setuserf)
                             } else {
-                                drawfact(resultarr)
+                                drawfact(resultarr, setuserf)
                             }
 
                         })
@@ -691,9 +694,9 @@ function generatefact() {
             if(drawfcl==false) {
                 //console.log(resultarr)
                 if(Object.keys(iterations).length>0) {
-                    additionalfactfifty(resultarr, iterations)
+                    additionalfactfifty(resultarr, iterations, setuserf)
                 } else {
-                    drawfact(resultarr)
+                    drawfact(resultarr, setuserf)
                 }
             }
         })
@@ -701,7 +704,7 @@ function generatefact() {
 }
 
 // функция без ограничения в 50 записей в запросе
-function additionalfactfifty(resultarr, iterations) {
+function additionalfactfifty(resultarr, iterations, setuserf) {
     stepiter++
     var drawfcl = false
     console.log(iterations)
@@ -868,9 +871,9 @@ function additionalfactfifty(resultarr, iterations) {
 
                                 })
                                 if (stepiter < maxiterations && drawfcl == true) {
-                                    additionalfactfifty(resultarr, iterations)
+                                    additionalfactfifty(resultarr, iterations, setuserf)
                                 } else if (stepiter == maxiterations && drawfcl == true) {
-                                    drawfact(resultarr)
+                                    drawfact(resultarr, setuserf)
                                 }
 
                             })
@@ -890,23 +893,28 @@ function additionalfactfifty(resultarr, iterations) {
                 }
             }
             if(stepiter<maxiterations && drawfcl == false) {
-                additionalfactfifty(resultarr, iterations)
+                additionalfactfifty(resultarr, iterations, setuserf)
             } else if(stepiter==maxiterations && drawfcl == false) {
-                drawfact(resultarr)
+                drawfact(resultarr, setuserf)
             }
         })
     }
 }
 
-function drawfact(resultarr) {
+function drawfact(resultarr, setuserf) {
     stepiter = 0
     datebeg = $("#datepickerstart").datepicker( "getDate" )
     dateend = $("#datepickerfinish").datepicker( "getDate" )
     var typename
+    var managername
     settypesf = $("#typef").val()
     console.log(resultarr)
     $("#resultfacttext").text("Отчет сформирован!")
-
+    $.each(users,function(index,users) {
+        if (users.value == setuserf) {
+            managername = users.text
+        }
+    })
     //$("#resultfactdate").empty()
     var manager = $("<p></p>").text("Менеджер "+ managername)
     $("#resultfactdate").append(manager)
