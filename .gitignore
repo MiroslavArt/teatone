@@ -40,3 +40,10 @@ cgi-bin/
 .bash_history
 /local.zip
 *node_modules*
+
+# IDE
+.idea
+nbproject
+.buildpath
+.project
+.settings
