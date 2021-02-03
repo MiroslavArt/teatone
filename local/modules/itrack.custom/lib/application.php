@@ -47,7 +47,7 @@ class Application
 //        $eventManager->addEventHandler('crm','OnAfterCrmDealUpdate', ['\iTrack\Custom\Handlers\Crm','onAfterCrmDealUpdate']);
 //        $eventManager->addEventHandler('crm','OnAfterCrmDealAdd', ['\iTrack\Custom\Handlers\Crm','onAfterCrmDealAdd']);
 //        $eventManager->addEventHandler('main','OnProlog', ['\iTrack\Custom\Handlers\Main','onProlog']);
-//        $eventManager->addEventHandler('main','OnEpilog', ['\iTrack\Custom\Handlers\Main','onEpilog']);
+          $eventManager->addEventHandler('main','OnEpilog', ['\iTrack\Custom\Handlers\Main','onEpilog']);
 //        $eventManager->addEventHandler('im','OnBeforeMessageNotifyAdd', ['\iTrack\Custom\Handlers\Im','onBeforeMessageNotifyAdd']);
 //        $eventManager->addEventHandler("crm", "OnAfterCrmTimelineCommentAdd", ['\iTrack\Custom\Handlers\Crm','funcOnAfterCrmTimelineCommentAdd']);
 //        $eventManager->addEventHandler("crm", "OnAfterCrmTimelineCommentAdd", funcOnAfterCrmTimelineCommentAdd);
