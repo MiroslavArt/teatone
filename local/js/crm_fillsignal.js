@@ -80,12 +80,33 @@ BX.iTrack.Crm.FillSignal = {
                 console.log(error);
             }.bind(this));
         } else {
-            this.processKanbanSignals();
+            this.processKanbanitemSignals(grid.grid.items);
         }
     },
     listHandler: function(grid){
-        this.list = grid;
+        this.list = grid.rows.parent.rows.rows
+        var collectSignals = []
         console.log(this.list)
+        this.list.forEach(function (listitem) {
+            if(listitem.node.dataset.hasOwnProperty('id')) {
+                if(listitem.node.dataset.id.match(/^\d+$/)){
+                    collectSignals.push(listitem.node.dataset.id);
+                }
+            }
+
+        })
+        console.log(collectSignals)
+        if(collectSignals.length) {
+            this.requestSignals(collectSignals).then(function(response) {
+                console.log(response);
+                this.processCollectionResponse(response);
+                this.processListSignals();
+            }.bind(this), function(error){
+                console.log(error);
+            }.bind(this));
+        } else {
+            this.processListSignals();
+        }
     },
     requestSignals: function(signal) {
         return BX.ajax.runAction('itrack:custom.api.signal.getSignal', {
@@ -159,5 +180,24 @@ BX.iTrack.Crm.FillSignal = {
             }
         }
 
+    },
+    processListSignals: function() {
+        this.list.forEach(function (listitem) {
+            if(listitem.node.dataset.hasOwnProperty('id')) {
+                if(listitem.node.dataset.id.match(/^\d+$/)){
+                    var id=listitem.node.dataset.id;
+                    var localValue = localStorage.getItem(id);
+                    if (localValue != 'Empty' && localValue !== null) {
+                        console.log(id)
+                        console.log(localValue)
+                        var signalNode = document.createElement('div')
+                        signalNode.innerText = localValue
+                        signalNode.className = "signal-value"
+                        signalNode.style.backgroundColor = "Pink"
+                        BX.prepend(signalNode, listitem.node.childNodes['2']);
+                    }
+                }
+            }
+        })
     }
 }
