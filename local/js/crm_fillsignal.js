@@ -17,7 +17,7 @@ BX.iTrack.Crm.FillSignal = {
             case 'list':
                 //console.log(this)
                 BX.addCustomEvent('Grid::ready', BX.delegate(this.listHandler, this));
-                //BX.addCustomEvent('Grid::updated', BX.delegate(this.listHandler, this));
+                BX.addCustomEvent('Grid::updated', BX.delegate(this.listHandler, this));
                 break;
         }
     },
