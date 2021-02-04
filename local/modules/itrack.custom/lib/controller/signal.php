@@ -18,15 +18,15 @@ class Signal extends Controller
                 $arSelectD = array('ID', 'UF_CRM_1612334271');
                 $obResDeal = \CCrmDeal::GetListEx(false,$arFilterDeal,false,false,$arSelectD)->Fetch();
                 if($obResDeal['UF_CRM_1612334271']==116) {
-                    $signalarr[$signal] = 'Client_in_1C';
+                    $signalarr[$signal] = 'Клиент_в_1C';
                 } elseif ($obResDeal['UF_CRM_1612334271']==117) {
-                    $signalarr[$signal] = 'Order_in_1C';
+                    $signalarr[$signal] = 'Заказ_в_1C';
                 } elseif ($obResDeal['UF_CRM_1612334271']==118) {
-                    $signalarr[$signal] = 'Doc_mistake';
+                    $signalarr[$signal] = 'Документ_с_ошибкой';
                 } elseif ($obResDeal['UF_CRM_1612334271']==120) {
-                    $signalarr[$signal] = 'Scan_exists';
+                    $signalarr[$signal] = 'Есть_скан';
                 } elseif ($obResDeal['UF_CRM_1612334271']==121) {
-                    $signalarr[$signal] = 'No_docs';
+                    $signalarr[$signal] = 'Нет_документов';
                 } elseif ($obResDeal['UF_CRM_1612334271']=="") {
                     $signalarr[$signal] = 'Empty';
                 }

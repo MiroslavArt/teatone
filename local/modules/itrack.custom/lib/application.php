@@ -34,9 +34,9 @@ class Application
             , "OnAfterCrmContactAdd"
             ,  array("\iTrack\Custom\handleGUID", "fOnAfterCrmContactAdd"));
 
-        $eventManager->addEventHandler("crm"
+        /*$eventManager->addEventHandler("crm"
             , "OnAfterCrmDealAdd"
-            ,  array("\iTrack\Custom\handleGUID", "fOnAfterCrmDealAdd"));
+            ,  array("\iTrack\Custom\handleGUID", "fOnAfterCrmDealAdd"));*/
 
         $eventManager->addEventHandler("crm"
             , "OnAfterCrmLeadAdd"

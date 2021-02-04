@@ -37,29 +37,24 @@ BX.iTrack.Crm.FillSignal = {
         var collectSignals = []
         for(var i in grid.items) {
             if(i>0) {
-            //if(grid.items[i].data.hasOwnProperty('phone')) {
-            //    if(grid.items[i].data.phone.hasOwnProperty('contact')) {
-            //        if (grid.items[i].data.phone.contact.length) {
-            //            var localValue = localStorage.getItem(grid.items[i].data.phone.contact[0].value);
-            //            if (localValue == null) {
-                            collectSignals.push(i);
-            //            }
-            //        }
-            //    }
-            //}
+                //var localValue = localStorage.getItem(i);
+                //if (localValue == null) {
+                    collectSignals.push(i);
+                //}
+
             }
         }
-        console.log(collectSignals)
+        //console.log(collectSignals)
         if(collectSignals.length) {
             this.requestSignals(collectSignals).then(function(response) {
-                console.log(response);
-                //this.processCollectionResponse(response);
-                //this.processKanbanSignals();
+                //console.log(response);
+                this.processCollectionResponse(response);
+                this.processKanbanSignals();
             }.bind(this), function(error){
                 console.log(error);
             }.bind(this));
         } else {
-            //this.processKanbanSignals();
+            this.processKanbanSignals();
         }
     },
     listHandler: function(grid){
@@ -74,34 +69,44 @@ BX.iTrack.Crm.FillSignal = {
         });
     },
     processCollectionResponse: function(response) {
-        console.log(response);
+        //console.log(response);
         if(response.hasOwnProperty('status')) {
+            console.log("status")
             if(response.status == 'success') {
-                if(response.data.length) {
+                console.log("success")
+                //if(response.data.length) {
+                    console.log("length")
                     for(var i in response.data) {
-                        localStorage.setItem(response.data[i].phone, response.data[i].timezone);
+                        //console.log(i)
+                        //console.log(response.data[i])
+                        localStorage.setItem(i, response.data[i]);
                     }
-                }
+                //}
             }
         }
+        //console.log(localStorage)
     },
     processKanbanSignals: function() {
         var items = this.kanban.items;
+        //console.log(this.kanban)
         for(var i in items) {
-            if(items[i].data.hasOwnProperty('phone')) {
-                if(items[i].data.phone.hasOwnProperty('contact')) {
-                    if (items[i].data.phone.contact.length) {
-                        var localValue = localStorage.getItem(items[i].data.phone.contact[0].value);
-                        if (localValue !== null) {
-                            if (!items[i].contactBlock.querySelector('.itrack-custom-crm-phonetime__phone-block')) {
-                                var timeNode = this.createTimeNodeForContactBlock();
-                                BX.append(timeNode, items[i].contactBlock);
-                                new BX.iTrack.Crm.PhoneTimezone.Timer(localValue, timeNode);
-                            }
-                        }
-                    }
+            if(i>0) {
+                var localValue = localStorage.getItem(i);
+                if (localValue != 'Empty' && localValue !== null) {
+                    //console.log(i)
+                    //console.log(localValue)
+                    //if (!items[i].link.querySelector('.crm-kanban-item-total')) {
+                    //console.log("link")
+                    var signalNode = document.createElement('div')
+                    signalNode.innerText = localValue
+                    signalNode.style.backgroundColor = "Pink"
+                    BX.append(signalNode, items[i].link);
+                    //new BX.iTrack.Crm.PhoneTimezone.Timer(localValue, timeNode);
+                    //}
+
                 }
             }
         }
+
     }
 }
