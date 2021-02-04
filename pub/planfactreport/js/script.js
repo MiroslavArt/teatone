@@ -62,19 +62,16 @@ $(document).ready(function() {
     $tabs.not(ACTIVE_DOT).hide();
     // Обработка переключений закладок <ul>
     $('ul.titles').on('click', 'li:not(ACTIVE_DOT)', function () {
-        $("#resultfacttext").empty()
-        $("#resultfactdate").empty()
-        $(".tabs").width('100%')
         // Заголовки
         $(this).addClass(ACTIVE).siblings().removeClass(ACTIVE);
         // Тексты
         $tabs.hide().eq($(this).index()).show().addClass(ACTIVE).siblings().removeClass(ACTIVE);
     });
     var datep = new Date();
-
+    datep.setDate(datep.getDate()-7)
     // календари ввод значений
     $("#datepickerstart").datepicker()
-    $("#datepickerstart").datepicker( "setDate", datep.getDate()-7)
+    $("#datepickerstart").datepicker( "setDate", datep)
     $("#datepickerfinish").datepicker()
     $("#datepickerfinish").datepicker( "setDate", new Date())
 
@@ -234,6 +231,9 @@ $(document).ready(function() {
 
     // событие кнопки сформировать факт
     $("#btnSubmitfact").click(function(){
+        $("#resultfacttext").empty()
+        $("#resultfactdate").empty()
+        $(".tabs").width('100%')
         var setusersf = $("#userf").val()
         setusersf.forEach(function (setuserf) {
             generatefact(setuserf)
@@ -922,13 +922,13 @@ function drawfact(resultarr, setuserf) {
     var tr = $("<tr></tr>")
     tr.append($("<th></th>").text("Показатель"))
     while(datebeg<=dateend) {
-        tr.append($("<th></th>").text(datebeg.getDate() + '.' + (datebeg.getMonth()+1)))
+        tr.append($("<th></th>").text(datebeg.getDate() + '.' + (datebeg.getMonth()+1)).width(50))
         datebeg.setDate(datebeg.getDate()+1)
     }
-    tr.append($("<th></th>").text("Факт"))
-    tr.append($("<th></th>").text("План"))
-    tr.append($("<th></th>").text("Выполнено %"))
-    tr.append($("<th></th>").text("Осталось %"))
+    tr.append($("<th></th>").text("Факт").width(70))
+    tr.append($("<th></th>").text("План").width(70))
+    tr.append($("<th></th>").text("Выполнено %").width(60))
+    tr.append($("<th></th>").text("Осталось %").width(60))
     table.append(tr)
     //$.each(json,function(index,json){
     //    select.append($("<option></option>").attr("value", json.value).text(json.text));
@@ -966,13 +966,19 @@ function drawfact(resultarr, setuserf) {
         if(totaltype>0 && plantype>0) {
             var experc = totaltype / plantype
             experc = Math.floor(experc * 100)
-            tr.append($("<td></td>").text(experc))
+            if(experc>=100) {
+                tr.append($("<td></td>").text(experc).attr('bgcolor', 'green'))
+            } else if (experc>=85 && experc<100) {
+                tr.append($("<td></td>").text(experc).attr('bgcolor', 'yellow'))
+            } else {
+                tr.append($("<td></td>").text(experc).attr('bgcolor', 'red'))
+            }
             tr.append($("<td></td>").text(100-experc))
         } else if (totaltype==0 && plantype>0) {
-            tr.append($("<td></td>").text('0'))
+            tr.append($("<td></td>").text('0').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('100'))
         } else {
-            tr.append($("<td></td>").text('100'))
+            tr.append($("<td></td>").text('100').attr('bgcolor', 'green'))
             tr.append($("<td></td>").text('0'))
         }
         table.append(tr)
