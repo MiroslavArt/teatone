@@ -12,7 +12,7 @@ BX.iTrack.Crm.FillSignal = {
             case 'kanban':
                 //console.log(this)
                 BX.addCustomEvent('Kanban.Grid:onRender', BX.delegate(this.kanbanHandler, this));
-                //BX.addCustomEvent('Kanban.Grid:ready', BX.delegate(this.kanbanHandler, this));
+                BX.addCustomEvent('Kanban.Grid:onItemDragStop', BX.delegate(this.kanbanitemHandler, this));
                 break;
             case 'list':
                 //console.log(this)
@@ -33,7 +33,7 @@ BX.iTrack.Crm.FillSignal = {
     },
     kanbanHandler: function(grid){
         this.kanban = grid;
-        console.log(this.kanban)
+        console.log(grid)
         var collectSignals = []
         for(var i in grid.items) {
             if(i>0) {
@@ -44,12 +44,38 @@ BX.iTrack.Crm.FillSignal = {
 
             }
         }
-        //console.log(collectSignals)
+        console.log(collectSignals)
         if(collectSignals.length) {
             this.requestSignals(collectSignals).then(function(response) {
-                //console.log(response);
+                console.log(response);
                 this.processCollectionResponse(response);
                 this.processKanbanSignals();
+            }.bind(this), function(error){
+                console.log(error);
+            }.bind(this));
+        } else {
+            this.processKanbanSignals();
+        }
+    },
+    kanbanitemHandler: function(grid){
+        this.kanban = grid;
+        console.log(grid)
+        var collectSignals = []
+        for(var i in grid.grid.items) {
+            if(i>0) {
+                //var localValue = localStorage.getItem(i);
+                //if (localValue == null) {
+                collectSignals.push(i);
+                //}
+
+            }
+        }
+        console.log(collectSignals)
+        if(collectSignals.length) {
+            this.requestSignals(collectSignals).then(function(response) {
+                console.log(response);
+                this.processCollectionResponse(response);
+                this.processKanbanitemSignals(grid.grid.items);
             }.bind(this), function(error){
                 console.log(error);
             }.bind(this));
@@ -95,14 +121,39 @@ BX.iTrack.Crm.FillSignal = {
                 if (localValue != 'Empty' && localValue !== null) {
                     //console.log(i)
                     //console.log(localValue)
-                    //if (!items[i].link.querySelector('.crm-kanban-item-total')) {
+                    if (!items[i].link.querySelector('.signal-value')) {
                     //console.log("link")
-                    var signalNode = document.createElement('div')
-                    signalNode.innerText = localValue
-                    signalNode.style.backgroundColor = "Pink"
-                    BX.append(signalNode, items[i].link);
+                        var signalNode = document.createElement('div')
+                        signalNode.innerText = localValue
+                        signalNode.className = "signal-value"
+                        signalNode.style.backgroundColor = "Pink"
+                        BX.append(signalNode, items[i].link);
                     //new BX.iTrack.Crm.PhoneTimezone.Timer(localValue, timeNode);
-                    //}
+                    }
+
+                }
+            }
+        }
+
+    },
+    processKanbanitemSignals: function(grid) {
+        //var items = this.kanban.items;
+        //console.log(this.kanban)
+        for(var i in grid) {
+            if(i>0) {
+                var localValue = localStorage.getItem(i);
+                if (localValue != 'Empty' && localValue !== null) {
+                    //console.log(i)
+                    //console.log(localValue)
+                    if (!grid[i].link.querySelector('.signal-value')) {
+                    //console.log("link")
+                        var signalNode = document.createElement('div')
+                        signalNode.innerText = localValue
+                        signalNode.className = "signal-value"
+                        signalNode.style.backgroundColor = "Pink"
+                        BX.append(signalNode, grid[i].link);
+                        //new BX.iTrack.Crm.PhoneTimezone.Timer(localValue, timeNode);
+                    }
 
                 }
             }
