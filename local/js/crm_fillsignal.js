@@ -22,8 +22,21 @@ BX.iTrack.Crm.FillSignal = {
         }
     },
     detailHandler: function(editor, data) {
-        console.log(editor)
         console.log(data)
+        var collectSignals = []
+        if(data.hasOwnProperty('entityId')) {
+            collectSignals.push(data.entityId);
+        }
+        console.log(collectSignals)
+        if(collectSignals.length) {
+            this.requestSignals(collectSignals).then(function(response) {
+                console.log(response);
+                this.processCollectionResponse(response);
+                this.processDetailSignals(data.entityId);
+            }.bind(this), function(error){
+                console.log(error);
+            }.bind(this));
+        }
         //document.querySelectorAll('.crm-entity-widget-client-contact-phone').forEach(function (el) {
         //    this.processPhone(el);
         //}.bind(this));
@@ -199,5 +212,19 @@ BX.iTrack.Crm.FillSignal = {
                 }
             }
         })
+    },
+    processDetailSignals: function (entityID) {
+        var localValue = localStorage.getItem(entityID)
+        console.log(localValue)
+        if (localValue != 'Empty' && localValue !== null) {
+            var signalNode = document.createElement('div')
+            signalNode.innerText = localValue
+            signalNode.className = "signal-value"
+            signalNode.style.backgroundColor = "Pink"
+            var targetnode = document.getElementsByClassName("ui-entity-editor-section-header")
+            console.log(targetnode)
+            BX.prepend(signalNode, targetnode[0]);
+        }
+
     }
 }
