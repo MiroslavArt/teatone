@@ -506,7 +506,7 @@ function generatefact(setuserf) {
                 }
                 requestparam['SELECT'] = ["*"]
                 request['fact_'+settypesf].push(requestparam)
-            } else if(settypesf=="CL") {
+            } /*else if(settypesf=="CL") {
                 // логика чек листов к задачам
                 request['fact_'+settypesf] = ['tasks.task.list']
                 requestparam['filter'] = {
@@ -514,7 +514,7 @@ function generatefact(setuserf) {
                     'RESPONSIBLE_ID': setuserf
                 }
                 request['fact_'+settypesf].push(requestparam)
-            } else {
+            } */else {
                 // логика анализа завершенных сделок
                 request['fact_'+settypesf] = ['lists.element.get']
                 requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
@@ -573,11 +573,11 @@ function generatefact(setuserf) {
                     iterations[settypesf] = Math.floor(totalusers/50)
                 }
 
-                if(settypesf != "CL") {
+                //if(settypesf != "CL") {
                     var factarr = resultplus['fact_'+settypesf]['answer']['result']
-                } else {
-                    var factarr = resultplus['fact_'+settypesf]['answer']['result']['tasks']
-                }
+                //} else {
+                //    var factarr = resultplus['fact_'+settypesf]['answer']['result']['tasks']
+                //}
 
 
 
@@ -592,7 +592,7 @@ function generatefact(setuserf) {
                             resultarr[settypesf][datefact] = Number(resultarr[settypesf][datefact]) + 1
                         })
                     }
-                    else if (settypesf == "CL") {
+                    /*else if (settypesf == "CL") {
                         // анаализируем чек-листы
                         drawfcl = true
                         //console.log('Check list')
@@ -677,7 +677,7 @@ function generatefact(setuserf) {
                             }
 
                         })
-                    } else {
+                    }*/ else {
                         factarr.forEach(function (fact) {
                             var listdate = Object.values(fact[factdatefield])[0]
 
@@ -743,7 +743,7 @@ function additionalfactfifty(resultarr, iterations, setuserf) {
                 requestparam['SELECT'] = ["*"]
                 requestparam['start'] = 50*stepiter
                 request['fact_' + iterkey].push(requestparam)
-            } else if(iterkey=="CL" && stepiter<=iterations[iterkey]) {
+            } /*else if(iterkey=="CL" && stepiter<=iterations[iterkey]) {
                 var requestparam = {}
                 request['fact_' + iterkey] = ['tasks.task.list']
                 requestparam['filter'] = {
@@ -752,7 +752,7 @@ function additionalfactfifty(resultarr, iterations, setuserf) {
                 }
                 requestparam['start'] = 50*stepiter
                 request['fact_' + iterkey].push(requestparam)
-            } else {
+            }*/ else {
                 if(stepiter<=iterations[iterkey]) {
                     // логика анализа завершенных сделок
                     request['fact_' + iterkey] = ['lists.element.get']
@@ -790,7 +790,7 @@ function additionalfactfifty(resultarr, iterations, setuserf) {
                             })
                         }
                     }
-                } else if(iterkey=="CL") {
+                } /*else if(iterkey=="CL") {
                     if(resultiterations['fact_' + iterkey]!=undefined) {
                         var factarr = resultiterations['fact_' + iterkey]['answer']['result']['tasks']
                         if (factarr.length > 0) {
@@ -879,7 +879,7 @@ function additionalfactfifty(resultarr, iterations, setuserf) {
                             })
                         }
                     }
-                } else {
+                }*/ else {
                     // логика анализа сделок
                     if (resultiterations['fact_' + iterkey] != undefined) {
                         var factarr = resultiterations['fact_' + iterkey]['answer']['result']
