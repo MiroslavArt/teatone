@@ -883,12 +883,14 @@ function additionalfactfifty(resultarr, iterations, setuserf) {
                     // логика анализа сделок
                     if (resultiterations['fact_' + iterkey] != undefined) {
                         var factarr = resultiterations['fact_' + iterkey]['answer']['result']
-                        var listdate = Object.values(fact[factdatefield])[0]
-                        if (resultarr[iterkey][listdate] == undefined) {
-                            resultarr[iterkey][listdate] = 0
-                        }
-                        resultarr[iterkey][listdate] = Number(resultarr[iterkey][listdate])
-                            + Number(Object.values(fact[factvaluefield])[0])
+                        factarr.forEach(function (fact) {
+                            var listdate = Object.values(fact[factdatefield])[0]
+                            if (resultarr[iterkey][listdate] == undefined) {
+                                resultarr[iterkey][listdate] = 0
+                            }
+                            resultarr[iterkey][listdate] = Number(resultarr[iterkey][listdate])
+                                + Number(Object.values(fact[factvaluefield])[0])
+                        })
                     }
                 }
             }
