@@ -1,3 +1,12 @@
+<?php
+require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/maodules/main/include/prolog_before.php');
+\Bitrix\Main\UI\Extension::load("ui.forms");
+\Bitrix\Main\UI\Extension::load("ui.buttons");
+\Bitrix\Main\UI\Extension::load("ui.icons");
+\Bitrix\Main\UI\Extension::load("ui.notification");
+\Bitrix\Main\UI\Extension::load("ui.hint");
+\Bitrix\Main\UI\Extension::load("ui.alerts");
+?>
 <html lang="ru">
 <head>
     <title>Учет финансов</title>
