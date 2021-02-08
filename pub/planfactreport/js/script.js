@@ -4,8 +4,8 @@ var settype
 var setyear
 var setdatebegf
 var setdateendp
-var setuserf
-var managername
+//var setusersf
+//var managername
 var settypesf = []
 var explan = []
 var types = []
@@ -62,19 +62,16 @@ $(document).ready(function() {
     $tabs.not(ACTIVE_DOT).hide();
     // Обработка переключений закладок <ul>
     $('ul.titles').on('click', 'li:not(ACTIVE_DOT)', function () {
-        $("#resultfacttext").empty()
-        $("#resultfactdate").empty()
-        $(".tabs").width('100%')
         // Заголовки
         $(this).addClass(ACTIVE).siblings().removeClass(ACTIVE);
         // Тексты
         $tabs.hide().eq($(this).index()).show().addClass(ACTIVE).siblings().removeClass(ACTIVE);
     });
     var datep = new Date();
-
+    datep.setDate(datep.getDate()-7)
     // календари ввод значений
     $("#datepickerstart").datepicker()
-    $("#datepickerstart").datepicker( "setDate", datep.getDate()-7)
+    $("#datepickerstart").datepicker( "setDate", datep)
     $("#datepickerfinish").datepicker()
     $("#datepickerfinish").datepicker( "setDate", new Date())
 
@@ -234,7 +231,13 @@ $(document).ready(function() {
 
     // событие кнопки сформировать факт
     $("#btnSubmitfact").click(function(){
-        generatefact()
+        $("#resultfacttext").empty()
+        $("#resultfactdate").empty()
+        $(".tabs").width('100%')
+        var setusersf = $("#userf").val()
+        setusersf.forEach(function (setuserf) {
+            generatefact(setuserf)
+        })
     });
 
     // событие кнопки очистки факта
@@ -260,7 +263,7 @@ function arrayuserfill(users) {
     $("#employees").html(select2);
     $("#user :first").attr("selected", "selected");
 
-    var select3 = $("<select></select>").attr("id", "userf").attr("name", "userf");
+    var select3 = $("<select></select>").attr("id", "userf").attr("name", "userf").attr("multiple", "multiple");
     $.each(users,function(index,users){
         //console.log(users)
         select3.append($("<option></option>").attr("value", users.value).text(users.text));
@@ -408,7 +411,7 @@ function generateplan() {
     });
 }
 
-function generatefact() {
+function generatefact(setuserf) {
     // забираем данные с формы
     datebeg = $("#datepickerstart").datepicker( "getDate" )
     dateend = $("#datepickerfinish").datepicker( "getDate" )
@@ -419,8 +422,8 @@ function generatefact() {
     var iterations = {}
     setdatebegf = $("#datepickerstart").val()
     setdateendp = $("#datepickerfinish").val()
-    setuserf = $("#userf").val()
-    managername = $("#userf option:selected").text()
+    //setuserf = $("#userf").val()
+    //managername = $("#userf option:selected").text()
     settypesf = $("#typef").val()
 
     if(setdatebegf=="" || setdatebegf=="") {
@@ -503,7 +506,7 @@ function generatefact() {
                 }
                 requestparam['SELECT'] = ["*"]
                 request['fact_'+settypesf].push(requestparam)
-            } else if(settypesf=="CL") {
+            } /*else if(settypesf=="CL") {
                 // логика чек листов к задачам
                 request['fact_'+settypesf] = ['tasks.task.list']
                 requestparam['filter'] = {
@@ -511,7 +514,7 @@ function generatefact() {
                     'RESPONSIBLE_ID': setuserf
                 }
                 request['fact_'+settypesf].push(requestparam)
-            } else {
+            } */else {
                 // логика анализа завершенных сделок
                 request['fact_'+settypesf] = ['lists.element.get']
                 requestparam['IBLOCK_TYPE_ID'] = 'lists_socnet'
@@ -570,11 +573,11 @@ function generatefact() {
                     iterations[settypesf] = Math.floor(totalusers/50)
                 }
 
-                if(settypesf != "CL") {
+                //if(settypesf != "CL") {
                     var factarr = resultplus['fact_'+settypesf]['answer']['result']
-                } else {
-                    var factarr = resultplus['fact_'+settypesf]['answer']['result']['tasks']
-                }
+                //} else {
+                //    var factarr = resultplus['fact_'+settypesf]['answer']['result']['tasks']
+                //}
 
 
 
@@ -589,7 +592,7 @@ function generatefact() {
                             resultarr[settypesf][datefact] = Number(resultarr[settypesf][datefact]) + 1
                         })
                     }
-                    else if (settypesf == "CL") {
+                    /*else if (settypesf == "CL") {
                         // анаализируем чек-листы
                         drawfcl = true
                         //console.log('Check list')
@@ -668,13 +671,13 @@ function generatefact() {
                                 }
                             })
                             if(Object.keys(iterations).length>0) {
-                                additionalfactfifty(resultarr, iterations)
+                                additionalfactfifty(resultarr, iterations, setuserf)
                             } else {
-                                drawfact(resultarr)
+                                drawfact(resultarr, setuserf)
                             }
 
                         })
-                    } else {
+                    }*/ else {
                         factarr.forEach(function (fact) {
                             var listdate = Object.values(fact[factdatefield])[0]
 
@@ -691,9 +694,9 @@ function generatefact() {
             if(drawfcl==false) {
                 //console.log(resultarr)
                 if(Object.keys(iterations).length>0) {
-                    additionalfactfifty(resultarr, iterations)
+                    additionalfactfifty(resultarr, iterations, setuserf)
                 } else {
-                    drawfact(resultarr)
+                    drawfact(resultarr, setuserf)
                 }
             }
         })
@@ -701,7 +704,8 @@ function generatefact() {
 }
 
 // функция без ограничения в 50 записей в запросе
-function additionalfactfifty(resultarr, iterations) {
+function additionalfactfifty(resultarr, iterations, setuserf) {
+    console.log(iterations)
     stepiter++
     var drawfcl = false
     console.log(iterations)
@@ -740,7 +744,7 @@ function additionalfactfifty(resultarr, iterations) {
                 requestparam['SELECT'] = ["*"]
                 requestparam['start'] = 50*stepiter
                 request['fact_' + iterkey].push(requestparam)
-            } else if(iterkey=="CL" && stepiter<=iterations[iterkey]) {
+            } /*else if(iterkey=="CL" && stepiter<=iterations[iterkey]) {
                 var requestparam = {}
                 request['fact_' + iterkey] = ['tasks.task.list']
                 requestparam['filter'] = {
@@ -749,7 +753,7 @@ function additionalfactfifty(resultarr, iterations) {
                 }
                 requestparam['start'] = 50*stepiter
                 request['fact_' + iterkey].push(requestparam)
-            } else {
+            }*/ else {
                 if(stepiter<=iterations[iterkey]) {
                     // логика анализа завершенных сделок
                     request['fact_' + iterkey] = ['lists.element.get']
@@ -787,7 +791,7 @@ function additionalfactfifty(resultarr, iterations) {
                             })
                         }
                     }
-                } else if(iterkey=="CL") {
+                } /*else if(iterkey=="CL") {
                     if(resultiterations['fact_' + iterkey]!=undefined) {
                         var factarr = resultiterations['fact_' + iterkey]['answer']['result']['tasks']
                         if (factarr.length > 0) {
@@ -868,45 +872,54 @@ function additionalfactfifty(resultarr, iterations) {
 
                                 })
                                 if (stepiter < maxiterations && drawfcl == true) {
-                                    additionalfactfifty(resultarr, iterations)
+                                    additionalfactfifty(resultarr, iterations, setuserf)
                                 } else if (stepiter == maxiterations && drawfcl == true) {
-                                    drawfact(resultarr)
+                                    drawfact(resultarr, setuserf)
                                 }
 
                             })
                         }
                     }
-                } else {
+                }*/ else {
                     // логика анализа сделок
                     if (resultiterations['fact_' + iterkey] != undefined) {
                         var factarr = resultiterations['fact_' + iterkey]['answer']['result']
-                        var listdate = Object.values(fact[factdatefield])[0]
-                        if (resultarr[iterkey][listdate] == undefined) {
-                            resultarr[iterkey][listdate] = 0
-                        }
-                        resultarr[iterkey][listdate] = Number(resultarr[iterkey][listdate])
-                            + Number(Object.values(fact[factvaluefield])[0])
+                        factarr.forEach(function (fact) {
+                            var listdate = Object.values(fact[factdatefield])[0]
+                            if (resultarr[iterkey][listdate] == undefined) {
+                                resultarr[iterkey][listdate] = 0
+                            }
+                            resultarr[iterkey][listdate] = Number(resultarr[iterkey][listdate])
+                                + Number(Object.values(fact[factvaluefield])[0])
+                        })
                     }
                 }
             }
             if(stepiter<maxiterations && drawfcl == false) {
-                additionalfactfifty(resultarr, iterations)
+                additionalfactfifty(resultarr, iterations, setuserf)
             } else if(stepiter==maxiterations && drawfcl == false) {
-                drawfact(resultarr)
+                drawfact(resultarr, setuserf)
             }
         })
+    } else {
+        drawfact(resultarr, setuserf)
     }
 }
 
-function drawfact(resultarr) {
+function drawfact(resultarr, setuserf) {
     stepiter = 0
     datebeg = $("#datepickerstart").datepicker( "getDate" )
     dateend = $("#datepickerfinish").datepicker( "getDate" )
     var typename
+    var managername
     settypesf = $("#typef").val()
     console.log(resultarr)
     $("#resultfacttext").text("Отчет сформирован!")
-
+    $.each(users,function(index,users) {
+        if (users.value == setuserf) {
+            managername = users.text
+        }
+    })
     //$("#resultfactdate").empty()
     var manager = $("<p></p>").text("Менеджер "+ managername)
     $("#resultfactdate").append(manager)
@@ -914,13 +927,13 @@ function drawfact(resultarr) {
     var tr = $("<tr></tr>")
     tr.append($("<th></th>").text("Показатель"))
     while(datebeg<=dateend) {
-        tr.append($("<th></th>").text(datebeg.getDate() + '.' + (datebeg.getMonth()+1)))
+        tr.append($("<th></th>").text(datebeg.getDate() + '.' + (datebeg.getMonth()+1)).width(50))
         datebeg.setDate(datebeg.getDate()+1)
     }
-    tr.append($("<th></th>").text("Факт"))
-    tr.append($("<th></th>").text("План"))
-    tr.append($("<th></th>").text("Выполнено %"))
-    tr.append($("<th></th>").text("Осталось %"))
+    tr.append($("<th></th>").text("Факт").width(70))
+    tr.append($("<th></th>").text("План").width(70))
+    tr.append($("<th></th>").text("Выполнено %").width(60))
+    tr.append($("<th></th>").text("Осталось %").width(60))
     table.append(tr)
     //$.each(json,function(index,json){
     //    select.append($("<option></option>").attr("value", json.value).text(json.text));
@@ -958,13 +971,19 @@ function drawfact(resultarr) {
         if(totaltype>0 && plantype>0) {
             var experc = totaltype / plantype
             experc = Math.floor(experc * 100)
-            tr.append($("<td></td>").text(experc))
+            if(experc>=100) {
+                tr.append($("<td></td>").text(experc).attr('bgcolor', 'green'))
+            } else if (experc>=85 && experc<100) {
+                tr.append($("<td></td>").text(experc).attr('bgcolor', 'yellow'))
+            } else {
+                tr.append($("<td></td>").text(experc).attr('bgcolor', 'red'))
+            }
             tr.append($("<td></td>").text(100-experc))
         } else if (totaltype==0 && plantype>0) {
-            tr.append($("<td></td>").text('0'))
+            tr.append($("<td></td>").text('0').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('100'))
         } else {
-            tr.append($("<td></td>").text('100'))
+            tr.append($("<td></td>").text('100').attr('bgcolor', 'green'))
             tr.append($("<td></td>").text('0'))
         }
         table.append(tr)
