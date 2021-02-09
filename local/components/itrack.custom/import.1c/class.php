@@ -321,13 +321,13 @@ class ItrImport1c extends CBitrixComponent
                 }
                 break;
             case 'import':
-                echo $this->filePath;
+                //echo $this->filePath;
                 $data = simplexml_load_file($this->filePath);
                 foreach ($data as $doc) {
                     $id = (string)$doc->Ид;
-                    echo "<pre>";
-                    print_r($id);
-                    echo "</pre>";
+                    //echo "<pre>";
+                    //print_r($id);
+                    //echo "</pre>";
                     $status = (string)$doc->СтатусДокумента;
                     $statusb = "";
                     Loader::includeModule('crm');
@@ -337,9 +337,9 @@ class ItrImport1c extends CBitrixComponent
                     $dealid = $obResDeal['ID'];
 
                     if($dealid) {
-                        echo "<pre>";
-                        print_r($dealid);
-                        echo "</pre>";
+                        //echo "<pre>";
+                        //print_r($dealid);
+                        //echo "</pre>";
                         switch ($status) {
                             case "Занесения данных в 1С нового клиента. Карточка клиента в Битриксе есть.":
                                 $statusb = 116;
@@ -360,7 +360,7 @@ class ItrImport1c extends CBitrixComponent
                                 $statusb = 121;
                                 break;
                         }
-                        echo $statusb;
+                        //echo $statusb;
                         $arParams = array('UF_CRM_1612334271'=>$statusb);
                         $CCrmDeal = new CCrmDeal(false);
                         $CCrmDeal->Update($dealid, $arParams);
@@ -372,8 +372,10 @@ class ItrImport1c extends CBitrixComponent
                         );
                         $signal = new SignalsTable(false);
                         $signal->Add($fields);
+
                     }
                 }
+                $this->successMessage = 'Импорт завершен';
                 /*$reader = false;
                 if (class_exists($this->arParams['READER'])) {
                     $reader = new $this->arParams['READER']($this->filePath);
@@ -383,8 +385,8 @@ class ItrImport1c extends CBitrixComponent
                 if ($reader) {
                     $reader->runSteps($this);
                 }*/
-                echo "import";
-                \Bitrix\Main\Diag\Debug::writeToFile("importfound", "reqread", "__miros.log");
+                //echo "import";
+                //\Bitrix\Main\Diag\Debug::writeToFile("importfound", "reqread", "__miros.log");
                 break;
             case 'reset':
                 $_SESSION["BX_CML2_IMPORT"] = array(
