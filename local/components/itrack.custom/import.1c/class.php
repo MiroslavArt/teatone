@@ -5,6 +5,8 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Diag\Debug;
+use iTrack\Custom\Entity\SignalsTable;
+use Bitrix\Main\Type;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
@@ -319,6 +321,59 @@ class ItrImport1c extends CBitrixComponent
                 }
                 break;
             case 'import':
+                echo $this->filePath;
+                $data = simplexml_load_file($this->filePath);
+                foreach ($data as $doc) {
+                    $id = (string)$doc->Ид;
+                    echo "<pre>";
+                    print_r($id);
+                    echo "</pre>";
+                    $status = (string)$doc->СтатусДокумента;
+                    $statusb = "";
+                    Loader::includeModule('crm');
+                    $arFilterDeal = array('ORIGIN_ID'=>$id);
+                    $arSelectDeal = array('ID');
+                    $obResDeal = CCrmDeal::GetListEx(false,$arFilterDeal,false,false,$arSelectDeal)->Fetch();
+                    $dealid = $obResDeal['ID'];
+
+                    if($dealid) {
+                        echo "<pre>";
+                        print_r($dealid);
+                        echo "</pre>";
+                        switch ($status) {
+                            case "Занесения данных в 1С нового клиента. Карточка клиента в Битриксе есть.":
+                                $statusb = 116;
+                                break;
+                            case "Сформирован заказ с бланка заказа":
+                                $statusb = 117;
+                                break;
+                            case "Проблема":
+                                $statusb = 118;
+                                break;
+                            case "Есть оригинал":
+                                $statusb = 119;
+                                break;
+                            case "Вторая категория":
+                                $statusb = 120;
+                                break;
+                            case "Выписан":
+                                $statusb = 121;
+                                break;
+                        }
+                        echo $statusb;
+                        $arParams = array('UF_CRM_1612334271'=>$statusb);
+                        $CCrmDeal = new CCrmDeal(false);
+                        $CCrmDeal->Update($dealid, $arParams);
+
+                        $fields = array(
+                            'STATUS' => $status,
+                            'DEALID' => $dealid,
+                            'DATESTATUS' =>  new Type\Date()
+                        );
+                        $signal = new SignalsTable(false);
+                        $signal->Add($fields);
+                    }
+                }
                 /*$reader = false;
                 if (class_exists($this->arParams['READER'])) {
                     $reader = new $this->arParams['READER']($this->filePath);

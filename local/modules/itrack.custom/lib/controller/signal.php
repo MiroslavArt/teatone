@@ -18,11 +18,13 @@ class Signal extends Controller
                 $arSelectD = array('ID', 'UF_CRM_1612334271');
                 $obResDeal = \CCrmDeal::GetListEx(false,$arFilterDeal,false,false,$arSelectD)->Fetch();
                 if($obResDeal['UF_CRM_1612334271']==116) {
-                    $signalarr[$signal] = 'Клиент_в_1C';
+                    $signalarr[$signal] = 'Клиент_занесен_в_1С';
                 } elseif ($obResDeal['UF_CRM_1612334271']==117) {
-                    $signalarr[$signal] = 'Заказ_в_1C';
+                    $signalarr[$signal] = 'Заказ_сформирован в 1С';
                 } elseif ($obResDeal['UF_CRM_1612334271']==118) {
                     $signalarr[$signal] = 'Документ_с_ошибкой';
+                } elseif ($obResDeal['UF_CRM_1612334271']==119) {
+                    $signalarr[$signal] = 'Есть_оригинал';
                 } elseif ($obResDeal['UF_CRM_1612334271']==120) {
                     $signalarr[$signal] = 'Есть_скан';
                 } elseif ($obResDeal['UF_CRM_1612334271']==121) {
