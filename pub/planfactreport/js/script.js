@@ -171,25 +171,40 @@ $(document).ready(function() {
                         }
                     )
                 }
-                var select3 = $("<select></select>").attr("id", "type").attr("name", "type");
+                var select3 = $("<select class=\"js-select2\" multiple=\"multiple\"></select>").attr("id", "type").attr("name", "type");
                 $.each(types,function(index,types){
                     //console.log(json)
-                    select3.append($("<option></option>").attr("value", types.value).text(types.text));
+                    select3.append($("<option data-badge=\"\"></option>").attr("value", types.value).text(types.text));
                 });
                 $("#types").html(select3);
                 $("#type :first").attr("selected", "selected");
 
-                var select4 = $("<select></select>").attr("id", "typef").attr("name", "typef").attr("multiple", "multiple");
+                $(".js-select2").select2({
+                    closeOnSelect: false,
+                    placeholder: "Placeholder",
+                    allowHtml: true,
+                    allowClear: true
+                });
+
+                var select4 = $("<select class=\"js-select4\" multiple=\"multiple\"></select>").attr("id", "typef").attr("name", "typef").attr("multiple", "multiple");
                 $.each(types,function(index,types){
                     //console.log(json)
                     select4.append($("<option></option>").attr("value", types.value).text(types.text));
                 });
                 $("#typesf").html(select4);
                 $("#typef :first").attr("selected", "selected");
+
+                $(".js-select4").select2({
+                    closeOnSelect: false,
+                    placeholder: "Placeholder",
+                    allowHtml: true,
+                    allowClear: true
+                });
             })
 
         })
     })
+
 
     // стадии, если воронка одна
     /*BX24.callBatch({
@@ -255,7 +270,7 @@ function arrayuserfill(users) {
         if ( prev.text > next.text ) return 1;
         return 0;
     });
-    var select2 = $("<select></select>").attr("id", "user").attr("name", "user");
+    var select2 = $("<select class=\"js-select3\" multiple=\"multiple\"></select>").attr("id", "user").attr("name", "user");
     $.each(users,function(index,users){
         //console.log(users)
         select2.append($("<option></option>").attr("value", users.value).text(users.text));
@@ -263,13 +278,21 @@ function arrayuserfill(users) {
     $("#employees").html(select2);
     $("#user :first").attr("selected", "selected");
 
-    var select3 = $("<select></select>").attr("id", "userf").attr("name", "userf").attr("multiple", "multiple");
+    var select3 = $("<select class=\"js-select3\" multiple=\"multiple\"></select>").attr("id", "userf").attr("name", "userf").attr("multiple", "multiple");
     $.each(users,function(index,users){
         //console.log(users)
         select3.append($("<option></option>").attr("value", users.value).text(users.text));
     });
     $("#employeesf").html(select3);
     $("#userf :first").attr("selected", "selected");
+
+
+    $(".js-select3").select2({
+        closeOnSelect: false,
+        placeholder: "Placeholder",
+        allowHtml: true,
+        allowClear: true
+    });
 }
 
 function generateplan() {
@@ -351,7 +374,11 @@ function generateplan() {
             }
         })
 
-        var saveplan = $("<input>").attr({"id": "btnsaveplan", "value": "Сохранить план", "type": "submit"})
+        var saveplan = $("<input class=\"ui-btn ui-btn-primary\">").attr({
+            "id": "btnsaveplan",
+            "value": "Сохранить план",
+            "type": "submit"
+        })
 
         // функция сохранения плана
         saveplan.click(function () {
@@ -926,8 +953,13 @@ function drawfact(resultarr, setuserf) {
     var table = $("<table></table>").attr("id", "tablefact").attr("name", "tablefact").attr("border", 1).attr("cellspacing",0)
     var tr = $("<tr></tr>")
     tr.append($("<th></th>").text("Показатель"))
+
     while(datebeg<=dateend) {
-        tr.append($("<th></th>").text(datebeg.getDate() + '.' + (datebeg.getMonth()+1)).width(50))
+        var sday = datebeg.getDate()
+        sday = (sday > 10) ? sday : "0" + sday
+        var smonth = datebeg.getMonth() + 1
+        smonth = (smonth > 10) ? smonth : "0" + smonth
+        tr.append($("<th></th>").text(sday + '.' + smonth)).width(50)
         datebeg.setDate(datebeg.getDate()+1)
     }
     tr.append($("<th></th>").text("Факт").width(70))
@@ -972,7 +1004,7 @@ function drawfact(resultarr, setuserf) {
             var experc = totaltype / plantype
             experc = Math.floor(experc * 100)
             if(experc>=100) {
-                tr.append($("<td></td>").text(experc).attr('bgcolor', 'green'))
+                tr.append($("<td></td>").text(experc).attr('bgcolor', 'mediumseagreen'))
             } else if (experc>=85 && experc<100) {
                 tr.append($("<td></td>").text(experc).attr('bgcolor', 'yellow'))
             } else {
@@ -983,7 +1015,7 @@ function drawfact(resultarr, setuserf) {
             tr.append($("<td></td>").text('0').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('100'))
         } else {
-            tr.append($("<td></td>").text('100').attr('bgcolor', 'green'))
+            tr.append($("<td></td>").text('100').attr('bgcolor', '#79ea89'))
             tr.append($("<td></td>").text('0'))
         }
         table.append(tr)
@@ -995,5 +1027,8 @@ function drawfact(resultarr, setuserf) {
     if(currentwidth < tablewidth) {
         $(".tabs").width(tablewidth)
     }
+    $("#tablefact").wrap(function () {
+        return "<div class='new'></div>";
+    })
 }
 
