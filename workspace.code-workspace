@@ -1,0 +1,12 @@
+{
+  "folders": [
+	{
+		"name": "mashnina.teatone.softmonster.ru",
+		"uri": "sftp://teatone.softmonster.ru/"
+	},
+	{
+		"path": "."
+	}
+],
+  "settings": {}
+}
