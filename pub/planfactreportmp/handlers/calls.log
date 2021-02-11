@@ -1,0 +1,145 @@
+
+------------------------
+2021.01.26 9:53:04
+calls
+yes
+------------------------
+
+------------------------
+2021.01.26 9:53:04
+calls
+Array
+(
+)
+
+------------------------
+
+------------------------
+2021.01.26 13:05:13
+calls
+yes
+------------------------
+
+------------------------
+2021.01.26 13:05:13
+calls
+Array
+(
+    [event] => ONCRMDEALUPDATE
+    [data] => Array
+        (
+            [FIELDS] => Array
+                (
+                    [ID] => 11
+                )
+
+        )
+
+    [ts] => 1611655511
+    [auth] => Array
+        (
+            [access_token] => 68f70f600051afdf0050a12000000001000003719a7b1d4896ca5787c0ec7b150b5a56
+            [expires] => 1611659112
+            [expires_in] => 3600
+            [scope] => crm,socialnetwork,sale,rpa,catalog,imbot,im,messageservice,mobile,pull_channel,pull,entity,sonet_group,log,placement,imopenlines,smile,rating,userconsent,user,bizproc,tasks_extended,task,pay_system,delivery,calendar,disk,timeman,documentgenerator,intranet,contact_center,department,faceid,landing_cloud,landing,forum,lists,mailservice
+            [domain] => lyantsevich.teatone.softmonster.ru
+            [server_endpoint] => https://oauth.bitrix.info/rest/
+            [status] => L
+            [client_endpoint] => https://lyantsevich.teatone.softmonster.ru/rest/
+            [member_id] => 6086f9da308739d0cd19dc54e0a62dea
+            [user_id] => 1
+            [application_token] => 999b192ea82421ba58c7a25156964ec3
+        )
+
+)
+
+------------------------
+
+------------------------
+2021.01.26 13:08:37
+calls
+yes
+------------------------
+
+------------------------
+2021.01.26 13:08:37
+calls
+Array
+(
+    [event] => ONCRMACTIVITYUPDATE
+    [data] => Array
+        (
+            [FIELDS] => Array
+                (
+                    [ID] => 9
+                )
+
+        )
+
+    [ts] => 1611655715
+    [auth] => Array
+        (
+            [access_token] => 34f80f600051afdf0050a120000000010000032f050fa3528402c67efba328eb1f0d89
+            [expires] => 1611659316
+            [expires_in] => 3600
+            [scope] => crm,socialnetwork,sale,rpa,catalog,imbot,im,messageservice,mobile,pull_channel,pull,entity,sonet_group,log,placement,imopenlines,smile,rating,userconsent,user,bizproc,tasks_extended,task,pay_system,delivery,calendar,disk,timeman,documentgenerator,intranet,contact_center,department,faceid,landing_cloud,landing,forum,lists,mailservice
+            [domain] => lyantsevich.teatone.softmonster.ru
+            [server_endpoint] => https://oauth.bitrix.info/rest/
+            [status] => L
+            [client_endpoint] => https://lyantsevich.teatone.softmonster.ru/rest/
+            [member_id] => 6086f9da308739d0cd19dc54e0a62dea
+            [user_id] => 1
+            [application_token] => 999b192ea82421ba58c7a25156964ec3
+        )
+
+)
+
+------------------------
+
+------------------------
+2021.01.26 13:10:40
+calls
+yes
+------------------------
+
+------------------------
+2021.01.26 13:10:40
+calls
+Array
+(
+    [event] => ONTASKUPDATE
+    [data] => Array
+        (
+            [FIELDS_BEFORE] => Array
+                (
+                    [ID] => 2
+                )
+
+            [FIELDS_AFTER] => Array
+                (
+                    [ID] => 2
+                )
+
+            [IS_ACCESSIBLE_BEFORE] => undefined
+            [IS_ACCESSIBLE_AFTER] => undefined
+        )
+
+    [ts] => 1611655839
+    [auth] => Array
+        (
+            [access_token] => b0f80f600051afdf0050a1200000000100000399c78f130b639aa9dce660a093fb28df
+            [expires] => 1611659440
+            [expires_in] => 3600
+            [scope] => crm,socialnetwork,sale,rpa,catalog,imbot,im,messageservice,mobile,pull_channel,pull,entity,sonet_group,log,placement,imopenlines,smile,rating,userconsent,user,bizproc,tasks_extended,task,pay_system,delivery,calendar,disk,timeman,documentgenerator,intranet,contact_center,department,faceid,landing_cloud,landing,forum,lists,mailservice
+            [domain] => lyantsevich.teatone.softmonster.ru
+            [server_endpoint] => https://oauth.bitrix.info/rest/
+            [status] => L
+            [client_endpoint] => https://lyantsevich.teatone.softmonster.ru/rest/
+            [member_id] => 6086f9da308739d0cd19dc54e0a62dea
+            [user_id] => 1
+            [application_token] => 999b192ea82421ba58c7a25156964ec3
+        )
+
+)
+
+------------------------
