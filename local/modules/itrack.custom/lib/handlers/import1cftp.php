@@ -19,6 +19,7 @@ class Import1cftp
         $ftp_server = \COption::GetOptionString("itrack.custom", "main_ftp");
         $ftp_user_name = \COption::GetOptionString("itrack.custom", "main_ftpl");
         $ftp_user_pass = \COption::GetOptionString("itrack.custom", "main_ftpp");
+        $ufield = \COption::GetOptionString("itrack.custom", "main_uf");
 
 
 
@@ -67,26 +68,33 @@ class Import1cftp
                             echo "</pre>";
                             switch ($status) {
                                 case "Занесения данных в 1С нового клиента. Карточка клиента в Битриксе есть.":
-                                    $statusb = 116;
+                                    //$statusb = 116;
+                                    $statusb = 'Клиент занесен в 1С';
                                     break;
                                 case "Сформирован заказ с бланка заказа":
-                                    $statusb = 117;
+                                    //$statusb = 117;
+                                    $statusb = 'Заказ сформирован в 1С';
                                     break;
                                 case "Проблема":
-                                    $statusb = 118;
+                                    //$statusb = 118;
+                                    $statusb = 'Документ с ошибкой';
                                     break;
                                 case "Есть оригинал":
-                                    $statusb = 119;
+                                    //$statusb = 119;
+                                    $statusb = 'Есть оригинал';
                                     break;
                                 case "Вторая категория":
-                                    $statusb = 120;
+                                    //$statusb = 120;
+                                    $statusb = 'Есть скан';
                                     break;
                                 case "Выписан":
-                                    $statusb = 121;
+                                    //$statusb = 121;
+                                    $statusb = 'Нет документов';
                                     break;
                             }
                             //echo $statusb;
-                            $arParams = array('UF_CRM_1612334271'=>$statusb);
+                            //$arParams = array('UF_CRM_1612334271'=>$statusb);
+                            $arParams = array($ufield => $statusb);
                             $CCrmDeal = new \CCrmDeal(false);
                             $CCrmDeal->Update($dealid, $arParams);
 
@@ -110,6 +118,7 @@ class Import1cftp
 
 // закрытие ssl-соединения
         ftp_close($conn_id);
+        return "iTrack\Custom\Handlers\Import1cftp::makeimport();";
     }
 
 
