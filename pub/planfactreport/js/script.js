@@ -171,17 +171,17 @@ $(document).ready(function() {
                         }
                     )
                 }
-                var select3 = $("<select class=\"js-select2\" multiple=\"multiple\"></select>").attr("id", "type").attr("name", "type");
+                var select3 = $("<select class=\"js-select2\"></select>").attr("id", "type").attr("name", "type");
                 $.each(types,function(index,types){
                     //console.log(json)
                     select3.append($("<option data-badge=\"\"></option>").attr("value", types.value).text(types.text));
                 });
                 $("#types").html(select3);
-                $("#type :first").attr("selected", "selected");
+                //$("#type :first").attr("selected", "selected");
 
                 $(".js-select2").select2({
                     closeOnSelect: false,
-                    placeholder: "Placeholder",
+                    placeholder: "Показатели",
                     allowHtml: true,
                     allowClear: true
                 });
@@ -192,11 +192,11 @@ $(document).ready(function() {
                     select4.append($("<option></option>").attr("value", types.value).text(types.text));
                 });
                 $("#typesf").html(select4);
-                $("#typef :first").attr("selected", "selected");
+                //$("#typef :first").attr("selected", "selected");
 
                 $(".js-select4").select2({
                     closeOnSelect: false,
-                    placeholder: "Placeholder",
+                    placeholder: "Показатели",
                     allowHtml: true,
                     allowClear: true
                 });
@@ -270,13 +270,13 @@ function arrayuserfill(users) {
         if ( prev.text > next.text ) return 1;
         return 0;
     });
-    var select2 = $("<select class=\"js-select3\" multiple=\"multiple\"></select>").attr("id", "user").attr("name", "user");
+    var select2 = $("<select class=\"js-select3\"></select>").attr("id", "user").attr("name", "user");
     $.each(users,function(index,users){
         //console.log(users)
         select2.append($("<option></option>").attr("value", users.value).text(users.text));
     });
     $("#employees").html(select2);
-    $("#user :first").attr("selected", "selected");
+    //$("#user :first").attr("selected", "selected");
 
     var select3 = $("<select class=\"js-select3\" multiple=\"multiple\"></select>").attr("id", "userf").attr("name", "userf").attr("multiple", "multiple");
     $.each(users,function(index,users){
@@ -284,12 +284,12 @@ function arrayuserfill(users) {
         select3.append($("<option></option>").attr("value", users.value).text(users.text));
     });
     $("#employeesf").html(select3);
-    $("#userf :first").attr("selected", "selected");
+    //$("#userf :first").attr("selected", "selected");
 
 
     $(".js-select3").select2({
         closeOnSelect: false,
-        placeholder: "Placeholder",
+        placeholder: "Сотрудники",
         allowHtml: true,
         allowClear: true
     });
