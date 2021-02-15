@@ -372,3 +372,62 @@ li.title {
 #tablefact tr:nth-child(1) > th:nth-child(13) {
     width: 120px !important;
 }
+
+/* Datepicker */
+
+.ui-datepicker .ui-datepicker-header {
+    background: azure !important;
+}
+
+.ui-widget-header {
+
+    color: #535c69 !important;
+}
+
+.ui-widget-content {
+    color: #535c69 !important;
+}
+
+.ui-datepicker th {
+    color: #535c69 !important;
+}
+
+.ui-datepicker .ui-datepicker-title {
+    width: 100px !important;
+    margin: 0 auto !important;
+}
+
+.ui-datepicker .ui-datepicker-prev {
+    left: 15px !important;
+}
+
+.ui-datepicker .ui-datepicker-next {
+    right: 20px !important;
+}
+
+.ui-datepicker .ui-datepicker-prev span, .ui-datepicker .ui-datepicker-next span {
+    width: 48px !important;
+    left: 0 !important;
+}
+
+.ui-widget.ui-widget-content {
+    border: 1px solid #c6cdd3 !important;
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active {
+    border: 1px solid #3bc8f5 !important;
+    background: #3bc8f5 !important;
+    font-weight: bold !important;
+}
+
+.ui-state-highlight, .ui-widget-content .ui-state-highlight {
+    border: 1px solid #FFD368 !important;
+    background: #FFD368 !important;
+    font-weight: bold !important;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default {
+    border-radius: 2px !important;
+    margin-bottom: 2px !important;
+    margin-right: 2px !important;
+}
