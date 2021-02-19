@@ -251,7 +251,9 @@ $(document).ready(function() {
         $(".tabs").width('100%')
         var setusersf = $("#userf").val()
         setusersf.forEach(function (setuserf) {
-            generatefact(setuserf)
+            if(setuserf!='all') {
+                generatefact(setuserf)
+            }
         })
     });
 
@@ -271,6 +273,8 @@ function arrayuserfill(users) {
         return 0;
     });
     var select2 = $("<select class=\"js-select3\"></select>").attr("id", "user").attr("name", "user");
+
+
     $.each(users,function(index,users){
         //console.log(users)
         select2.append($("<option></option>").attr("value", users.value).text(users.text));
@@ -279,6 +283,7 @@ function arrayuserfill(users) {
     //$("#user :first").attr("selected", "selected");
 
     var select3 = $("<select class=\"js-select3\" multiple=\"multiple\"></select>").attr("id", "userf").attr("name", "userf").attr("multiple", "multiple");
+    select3.append($("<option></option>").attr("value", 'all').text('Выбрать всех'));
     $.each(users,function(index,users){
         //console.log(users)
         select3.append($("<option></option>").attr("value", users.value).text(users.text));
@@ -292,6 +297,14 @@ function arrayuserfill(users) {
         placeholder: "Сотрудники",
         allowHtml: true,
         allowClear: true
+    });
+
+    $('.js-select3').on("select2:select", function (e) {
+        var data = e.params.data.text;
+        if(data=='Выбрать всех'){
+            $(".js-select3 > option").prop("selected","selected");
+            $(".js-select3").trigger("change");
+        }
     });
 }
 
@@ -1015,7 +1028,7 @@ function drawfact(resultarr, setuserf) {
             tr.append($("<td></td>").text('0').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('100'))
         } else {
-            tr.append($("<td></td>").text('100').attr('bgcolor', '#79ea89'))
+            tr.append($("<td></td>").text('100').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('0'))
         }
         table.append(tr)
@@ -1028,7 +1041,7 @@ function drawfact(resultarr, setuserf) {
         $(".tabs").width(tablewidth)
     }
     $("#tablefact").wrap(function () {
-        return "<div class='new'></div>";
+        //return "<div class='new'></div>";
     })
 }
 
