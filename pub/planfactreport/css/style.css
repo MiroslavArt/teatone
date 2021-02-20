@@ -375,7 +375,7 @@ li.title {
 
 /* Datepicker */
 
-.ui-datepicker .ui-datepicker-header {
+/*.ui-datepicker .ui-datepicker-header {
     background: azure !important;
 }
 
@@ -409,7 +409,7 @@ li.title {
     width: 48px !important;
     left: 0 !important;
 }
-
+*/
 .ui-widget.ui-widget-content {
     border: 1px solid #c6cdd3 !important;
 }
