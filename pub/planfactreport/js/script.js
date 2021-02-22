@@ -135,7 +135,8 @@ $(document).ready(function() {
         {value: "IC", text: "Входящие звонки"},
         {value: "OC", text: "Исходящие звонки"},
         {value: "CL", text: "Заполненные чек-листы"},
-        {value: "SL", text: "Сумма отгрузок(все воронки)"}
+        {value: "SL", text: "Сумма отгрузок(все воронки)"},
+        {value: "MT", text: "Встреч проведено"},
     ];
 
 
@@ -165,11 +166,16 @@ $(document).ready(function() {
             BX24.callBatch(stagesrequest, function (resultdealsstages) {
                 console.log(resultdealsstages)
                 for (var tunnelres in resultdealsstages) {
-                    resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
-                        let objstage = {value: restunnel['STATUS_ID'], text: "Переходы на этап " + restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
-                        types.push(objstage)
-                        }
-                    )
+                    // условие для А-трейд
+                        resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
+                            if(restunnel['STATUS_ID']=='C1:PREPARATION' || restunnel['STATUS_ID']=='C1:1' ||
+                               restunnel['STATUS_ID']=='C1:4') {
+                                let objstage = {value: restunnel['STATUS_ID'], text: "Переходы на этап " + restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
+                                types.push(objstage)
+                                }
+                            }
+                        )
+                    //}
                 }
                 var select3 = $("<select class=\"js-select2\"></select>").attr("id", "type").attr("name", "type");
                 $.each(types,function(index,types){
