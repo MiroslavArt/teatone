@@ -975,9 +975,9 @@ function drawfact(resultarr, setuserf) {
 
     while(datebeg<=dateend) {
         var sday = datebeg.getDate()
-        sday = (sday > 10) ? sday : "0" + sday
+        sday = (sday >= 10) ? sday : "0" + sday
         var smonth = datebeg.getMonth() + 1
-        smonth = (smonth >= 10) ? smonth : "0" + smonth
+        smonth = (smonth > 10) ? smonth : "0" + smonth
         tr.append($("<th></th>").text(sday + '.' + smonth)).width(50)
         datebeg.setDate(datebeg.getDate()+1)
     }
@@ -1003,7 +1003,7 @@ function drawfact(resultarr, setuserf) {
         datebeg = $("#datepickerstart").datepicker( "getDate" )
         while(datebeg<=dateend) {
             var sday = datebeg.getDate()
-            sday = (sday > 10) ? sday : "0" + sday
+            sday = (sday >= 10) ? sday : "0" + sday
             var smonth = datebeg.getMonth() + 1
             smonth = (smonth > 10) ? smonth : "0" + smonth
             var syear = datebeg.getFullYear()
