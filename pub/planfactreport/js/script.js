@@ -977,7 +977,7 @@ function drawfact(resultarr, setuserf) {
         var sday = datebeg.getDate()
         sday = (sday > 10) ? sday : "0" + sday
         var smonth = datebeg.getMonth() + 1
-        smonth = (smonth > 10) ? smonth : "0" + smonth
+        smonth = (smonth >= 10) ? smonth : "0" + smonth
         tr.append($("<th></th>").text(sday + '.' + smonth)).width(50)
         datebeg.setDate(datebeg.getDate()+1)
     }
