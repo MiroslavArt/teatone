@@ -40,6 +40,7 @@ $out = executeBATCH($params,$domain, $auth);
 $stage = $out['result']['result']['get_deal']['STAGE_ID'];
 // тут поменять код поле на то, которое на портале
 $checklist = $out['result']['result']['get_deal']['UF_CRM_1612443146'];
+$meeting = $out['result']['result']['get_deal']['UF_CRM_1612349525'];
 $date = date("d.m.Y");
 $assigned = $out['result']['result']['get_deal']['MODIFY_BY_ID'];
 $sum = $out['result']['result']['get_deal']['OPPORTUNITY'];
@@ -121,6 +122,25 @@ if(!preg_match("/WON/", $stage)) {
 }
 
 $out = executeBATCH($params,$domain, $auth);
+
+if($meeting) {
+    $params = array(
+        'add_value' => 'lists.element.add?'
+            . http_build_query(array(
+                'IBLOCK_TYPE_ID' => 'lists_socnet',
+                'IBLOCK_CODE' => 'listfacts'.$sonetgroup,
+                'ELEMENT_CODE' => $dealid.'MT',
+                'FIELDS' => array(
+                    'NAME' => $dealid.'MT',
+                    $propvalue => 1,
+                    $propdate => $date,
+                    $proptype => 'MT',
+                    $propasn => $assigned
+                )
+            ))
+    );
+    $out = executeBATCH($params,$domain, $auth);
+}
 
 if($checklist) {
     $params = array(
