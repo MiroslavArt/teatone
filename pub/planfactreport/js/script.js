@@ -135,7 +135,8 @@ $(document).ready(function() {
         {value: "IC", text: "Входящие звонки"},
         {value: "OC", text: "Исходящие звонки"},
         {value: "CL", text: "Заполненные чек-листы"},
-        {value: "SL", text: "Сумма отгрузок(все воронки)"}
+        {value: "SL", text: "Сумма отгрузок(все воронки)"},
+        {value: "MT", text: "Встреч проведено"},
     ];
 
 
@@ -165,11 +166,16 @@ $(document).ready(function() {
             BX24.callBatch(stagesrequest, function (resultdealsstages) {
                 console.log(resultdealsstages)
                 for (var tunnelres in resultdealsstages) {
-                    resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
-                        let objstage = {value: restunnel['STATUS_ID'], text: "Переходы на этап " + restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
-                        types.push(objstage)
-                        }
-                    )
+                    // условие для А-трейд
+                        resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
+                            if(restunnel['STATUS_ID']=='C1:PREPARATION' || restunnel['STATUS_ID']=='C1:1' ||
+                               restunnel['STATUS_ID']=='C1:4') {
+                                let objstage = {value: restunnel['STATUS_ID'], text: "Переходы на этап " + restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
+                                types.push(objstage)
+                                }
+                            }
+                        )
+                    //}
                 }
                 var select3 = $("<select class=\"js-select2\"></select>").attr("id", "type").attr("name", "type");
                 $.each(types,function(index,types){
@@ -251,7 +257,9 @@ $(document).ready(function() {
         $(".tabs").width('100%')
         var setusersf = $("#userf").val()
         setusersf.forEach(function (setuserf) {
-            generatefact(setuserf)
+            if(setuserf!='all') {
+                generatefact(setuserf)
+            }
         })
     });
 
@@ -271,6 +279,8 @@ function arrayuserfill(users) {
         return 0;
     });
     var select2 = $("<select class=\"js-select3\"></select>").attr("id", "user").attr("name", "user");
+
+
     $.each(users,function(index,users){
         //console.log(users)
         select2.append($("<option></option>").attr("value", users.value).text(users.text));
@@ -279,6 +289,7 @@ function arrayuserfill(users) {
     //$("#user :first").attr("selected", "selected");
 
     var select3 = $("<select class=\"js-select3\" multiple=\"multiple\"></select>").attr("id", "userf").attr("name", "userf").attr("multiple", "multiple");
+    select3.append($("<option></option>").attr("value", 'all').text('Выбрать всех'));
     $.each(users,function(index,users){
         //console.log(users)
         select3.append($("<option></option>").attr("value", users.value).text(users.text));
@@ -292,6 +303,14 @@ function arrayuserfill(users) {
         placeholder: "Сотрудники",
         allowHtml: true,
         allowClear: true
+    });
+
+    $('.js-select3').on("select2:select", function (e) {
+        var data = e.params.data.text;
+        if(data=='Выбрать всех'){
+            $(".js-select3 > option").prop("selected","selected");
+            $(".js-select3").trigger("change");
+        }
     });
 }
 
@@ -956,7 +975,7 @@ function drawfact(resultarr, setuserf) {
 
     while(datebeg<=dateend) {
         var sday = datebeg.getDate()
-        sday = (sday > 10) ? sday : "0" + sday
+        sday = (sday >= 10) ? sday : "0" + sday
         var smonth = datebeg.getMonth() + 1
         smonth = (smonth > 10) ? smonth : "0" + smonth
         tr.append($("<th></th>").text(sday + '.' + smonth)).width(50)
@@ -984,7 +1003,7 @@ function drawfact(resultarr, setuserf) {
         datebeg = $("#datepickerstart").datepicker( "getDate" )
         while(datebeg<=dateend) {
             var sday = datebeg.getDate()
-            sday = (sday > 10) ? sday : "0" + sday
+            sday = (sday >= 10) ? sday : "0" + sday
             var smonth = datebeg.getMonth() + 1
             smonth = (smonth > 10) ? smonth : "0" + smonth
             var syear = datebeg.getFullYear()
@@ -1015,7 +1034,7 @@ function drawfact(resultarr, setuserf) {
             tr.append($("<td></td>").text('0').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('100'))
         } else {
-            tr.append($("<td></td>").text('100').attr('bgcolor', '#79ea89'))
+            tr.append($("<td></td>").text('100').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('0'))
         }
         table.append(tr)
@@ -1028,7 +1047,7 @@ function drawfact(resultarr, setuserf) {
         $(".tabs").width(tablewidth)
     }
     $("#tablefact").wrap(function () {
-        return "<div class='new'></div>";
+        //return "<div class='new'></div>";
     })
 }
 
