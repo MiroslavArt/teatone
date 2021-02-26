@@ -77,16 +77,16 @@ if(!preg_match("/WON/", $stage)) {
     $params = array(
         'add_value' => 'lists.element.add?'
             . http_build_query(array(
-                'IBLOCK_TYPE_ID' => 'lists_socnet',
-                'IBLOCK_CODE' => 'listfacts'.$sonetgroup,
-                'ELEMENT_CODE' => $dealid.'S'.$stage.'A'.$assigned,
-                'FIELDS' => array(
-                    'NAME' => $dealid.'S'.$stage.'A'.$assigned,
-                    $propvalue => 1,
-                    $propdate => $date,
-                    $proptype => $stage,
-                    $propasn => $assigned
-                )
+                    'IBLOCK_TYPE_ID' => 'lists_socnet',
+                    'IBLOCK_CODE' => 'listfacts'.$sonetgroup,
+                    'ELEMENT_CODE' => $dealid.'S'.$stage.'A'.$assigned,
+                    'FIELDS' => array(
+                        'NAME' => $dealid.'S'.$stage.'A'.$assigned,
+                        $propvalue => 1,
+                        $propdate => $date,
+                        $proptype => $stage,
+                        $propasn => $assigned
+                    )
             ))
     );
 } else {

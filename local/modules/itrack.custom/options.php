@@ -32,12 +32,61 @@ while($arIBlock = $dbIblock->fetch()) {
 }
 
 $arAllOptions = [
-    'bizon365' => [
-
+    'main' => [
+        [
+            'main_ftp',
+            Loc::getMessage($MODULE_ID.'_FTP'),
+            Option::get($MODULE_ID, 'FTP'),
+            ['text']
+        ],
+        [
+            'main_ftpl',
+            Loc::getMessage($MODULE_ID.'_FTPL'),
+            Option::get($MODULE_ID, 'FTPL'),
+            ['text']
+        ],
+        [
+            'main_ftpp',
+            Loc::getMessage($MODULE_ID.'_FTPP'),
+            Option::get($MODULE_ID, 'FTPP'),
+            ['text']
+        ],
+        [
+            'main_uf',
+            Loc::getMessage($MODULE_ID.'_UF'),
+            Option::get($MODULE_ID, 'UF'),
+            ['text']
+        ],
+        /*[
+            'webinars_iblock_id',
+            Loc::getMessage($MODULE_ID.'_webinars_iblock_id'),
+            Option::get($MODULE_ID, 'webinars_iblock_id'),
+            [
+                'selectbox',
+                $arIblocks
+            ]
+        ],*/
     ],
-    'sendpulse' => [
-
-    ]
+    /*'sendpulse' => [
+        [
+            'sendpulse_id',
+            Loc::getMessage($MODULE_ID.'_sendpulse_id'),
+            Option::get($MODULE_ID, 'sendpulse_id'),
+            ['text']
+        ],
+        [
+            'sendpulse_token',
+            Loc::getMessage($MODULE_ID.'_sendpulse_token'),
+            Option::get($MODULE_ID, 'sendpulse_token'),
+            ['text']
+        ],
+        [
+            'sendpulse_sync_books',
+            Loc::getMessage($MODULE_ID.'_sendpulse_sync_books'),
+            Option::get($MODULE_ID, 'sendpulse_sync_books'),
+            ['checkbox']
+        ]
+    ]*/
 ];
 
 if(isset($request["save"]) && check_bitrix_sessid()) {
@@ -52,8 +101,19 @@ if(isset($request["save"]) && check_bitrix_sessid()) {
 
 $arTabs = [
     [
-
-    ]
+        "DIV" => "main",
+        "TAB" => Loc::getMessage($MODULE_ID.'_main'),
+        "ICON" => $MODULE_ID . '_settings',
+        "TITLE" => Loc::getMessage($MODULE_ID.'_bizon365_tab_subtitle'),
+        'TYPE' => 'options', //options || rights || user defined
+    ],
+    /*[
+        "DIV" => "sendpulse",
+        "TAB" => Loc::getMessage($MODULE_ID.'_sendpulse_tab_title'),
+        "ICON" => $MODULE_ID . '_settings',
+        "TITLE" => Loc::getMessage($MODULE_ID.'_sendpulse_tab_subtitle'),
+        'TYPE' => 'options', //options || rights || user defined
+    ]*/
 ];
 
 $tabControl = new CAdminTabControl("tabControl", $arTabs);
