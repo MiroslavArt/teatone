@@ -7,6 +7,8 @@ use iTrack\Custom\Entity\SignalsTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type;
 use iTrack\Custom\Application;
+use Bitrix\Main\Result;
+use Bitrix\Main\Error;
 
 class FileImport
 {
@@ -32,7 +34,12 @@ class FileImport
         if(!empty($arFiles)) {
             foreach($arFiles as $filename) {
                 if(stripos($filename, 'Категории') !== false) {
-                    self::processDocumentsFile($this->filePath.'/'.$filename);
+                    $result = self::processDocumentsFile($this->filePath.'/'.$filename);
+                    if($result->isSuccess()) {
+                        if(!rename($this->filePath.'/'.$filename, $this->filePath.'/processed/'.$filename)) {
+                            Application::log('Error move processed file '.$filename, 'fileimport.log');
+                        }
+                    }
                 }
             }
         }
@@ -40,6 +47,7 @@ class FileImport
 
     public static function processDocumentsFile($filepath)
     {
+        $result = new Result();
         Application::log('Start process documentsfile '.$filepath, 'fileimport.log');
         $ufield = \COption::GetOptionString("itrack.custom", "main_uf", "");
         if(!empty($ufield)) {
@@ -77,13 +85,6 @@ class FileImport
                             break;
                     }
 
-                    $arParams = array($ufield => $statusb);
-                    $CCrmDeal = new \CCrmDeal(false);
-                    $updateResult = $CCrmDeal->Update($dealid, $arParams);
-                    if(!$updateResult) {
-                        Application::log('Error update deal : '.$dealid.', error: '.$CCrmDeal->LAST_ERROR, 'fileimport.log');
-                    }
-
                     $fields = array(
                         'STATUS' => $status,
                         'DEALID' => $dealid,
@@ -93,12 +94,22 @@ class FileImport
                     $addResult = $signal->Add($fields);
                     if(!$addResult->isSuccess()) {
                         Application::log('Error add signal data '.$dealid.', error: '.print_r($addResult->getErrorMessages(), true), 'fileimport.log');
+                    } else {
+                        $arParams = array($ufield => $statusb);
+                        $CCrmDeal = new \CCrmDeal(false);
+                        $updateResult = $CCrmDeal->Update($dealid, $arParams);
+                        if(!$updateResult) {
+                            Application::log('Error update deal : '.$dealid.', error: '.$CCrmDeal->LAST_ERROR, 'fileimport.log');
+                        }
                     }
                 }
             }
             Application::log('End process', 'fileimport.log');
         } else {
             Application::log('Uf field not defined', 'fileimport.log');
+            $result->addError(new Error('Uf field not defined'));
         }
+
+        return $result;
     }
 }
