@@ -2,65 +2,40 @@
 
 namespace iTrack\Custom;
 
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
+
 class handleGUID
 {
-
-    public static $strufpropContact = 'WERTY';
-    public static $strufpropDeal = 'ZXCVBN';
-    public static $strufpropCompany = 'ABCDEF';
-    public static $strufpropLead = 'FGHJKL';
-
-    public static $debug = true;
-
-    public function __construct()
-    {
-        if (!class_exists('CCrmContact') or
-            !class_exists('CCrmDeal') or
-            !class_exists('CCrmCompany')) {
-            \Bitrix\Main\Loader::includeModule('crm');
-        }
-    }
-
-    public function fOnAfterCrmCompanyAdd(&$arFields)
+    public static function fOnAfterCrmCompanyAdd(&$arFields)
     {
         if (empty($arFields['ORIGIN_ID'])) {
-            $strGUID = $this->makeGUID();
-            $arFields['ORIGIN_ID'] = $strGUID;
-            $arFields[self::$strufpropCompany] = $strGUID;
-            //$this->updPropCompany($arFields,$strGUID);
+            self::updateEntity($arFields['ID'], \CCrmOwnerType::Company);
         }
     }
 
-    public function fOnAfterCrmContactAdd(&$arFields)
+    public static function fOnAfterCrmContactAdd(&$arFields)
     {
         if (empty($arFields['ORIGIN_ID'])) {
-            $strGUID = $this->makeGUID();
-            $arFields['ORIGIN_ID'] = $strGUID;
-            $arFields[self::$strufpropContact] = $strGUID;
-            //$this->updPropContact($arFields,$strGUID);
+            self::updateEntity($arFields['ID'], \CCrmOwnerType::Contact);
         }
     }
 
-    public function fOnAfterCrmDealAdd(&$arFields)
+    public static function fOnAfterCrmDealAdd(&$arFields)
     {
         if (empty($arFields['ORIGIN_ID'])) {
-            $strGUID = $this->makeGUID();
-            $arFields['ORIGIN_ID'] = $strGUID;
-            $arFields[self::$strufpropDeal] = $strGUID;
-            //$this->updPropDeal($arFields,$strGUID);
+            self::updateEntity($arFields['ID'], \CCrmOwnerType::Deal);
         }
     }
 
-    public function fOnAfterCrmLeadAdd(&$arFields)
+    public static function fOnAfterCrmLeadAdd(&$arFields)
     {
         if (empty($arFields['ORIGIN_ID'])) {
-            $strGUID = $this->makeGUID();
-            $arFields['ORIGIN_ID'] = $strGUID;
-            $arFields[self::$strufpropLead] = $strGUID;
+            self::updateEntity($arFields['ID'], \CCrmOwnerType::Lead);
         }
     }
 
-    public function makeGUID($strdata = '')
+    public static function makeGUID($strdata = '')
     {
         //CIntranetUtils::makeGUID(md5(123)); //{202cb962-ac59-075b-964b-07152d234b70} str_replace([],'',$)
         if (mb_strlen($strdata) !== 32) {
@@ -70,53 +45,43 @@ class handleGUID
         return $strdata;
     }
 
-    public function updPropDeal($arfield, $sGUID)
+    protected static function updateEntity($entityId, $entityType)
     {
-        $arUpdateDeal[self::$strufpropDeal] = $sGUID;
-        $obDeal = new \CCrmDeal(false);
-        if (!$obDeal->Update($arfield['ID']
-            , $arUpdateDeal
-            , $bCompare = true
-            , $bUpdateSearch = false
-            , $options = array(
-                "ENABLE_SYSTEM_EVENTS" => false
-            , "REGISTER_STATISTICS" => false
-            , "CURRENT_USER" => $arfield['MODIFY_BY_ID']
-            ))) {
+        if(Loader::includeModule('crm')) {
+            $ufField = Option::get('itrack.custom','uf_'.strtolower(\CCrmOwnerType::ResolveName($entityType)).'_guid','');
+            if(!empty($ufField)) {
+                $guid = self::makeGUID();
+                switch($entityType) {
+                    case \CCrmOwnerType::Lead:
+                        $obEntity = new \CCrmLead(false);
+                        break;
+                    case \CCrmOwnerType::Deal:
+                        $obEntity = new \CCrmDeal(false);
+                        break;
+                    case \CCrmOwnerType::Contact:
+                        $obEntity = new \CCrmContact(false);
+                        break;
+                    case \CCrmOwnerType::Company:
+                        $obEntity = new \CCrmCompany(false);
+                        break;
+                }
+                if($obEntity) {
+                    $arUpdateFields = [
+                        'ORIGIN_ID' => $guid,
+                        $ufField => $guid
+                    ];
+                    $res = $obEntity->Update(
+                        $entityId,
+                        $arUpdateFields,
+                        true,
+                        false,
+                        [
+                            "ENABLE_SYSTEM_EVENTS" => false,
+                            "REGISTER_STATISTICS" => false
+                        ]
+                    );
+                }
+            }
         }
     }
-
-    public function updPropContact($arfield, $sGUID)
-    {
-        $arUpdateContact[self::$strufpropContact] = $sGUID;
-        $obContact = new \CCrmContact(false);
-        if (!$obContact->Update($arfield['ID']
-            , $arUpdateContact
-            , $bCompare = true
-            , $bUpdateSearch = false
-            , $options = array(
-                "ENABLE_SYSTEM_EVENTS" => false
-            , "REGISTER_STATISTICS" => false
-            , "CURRENT_USER" => $arfield['MODIFY_BY_ID']
-            ))) {
-        }
-    }
-
-    public function updPropCompany($arfield, $sGUID)
-    {
-        $arUpdateCompany[self::$strufpropCompany] = $sGUID;
-        $obCompany = new \CCrmCompany(false);
-        if (!$obCompany->Update($arfield['ID']
-            , $arUpdateCompany
-            , $bCompare = true
-            , $bUpdateSearch = false
-            , $options = array(
-                "ENABLE_SYSTEM_EVENTS" => false
-            , "REGISTER_STATISTICS" => false
-            , "CURRENT_USER" => $arfield['MODIFY_BY_ID']
-            ))) {
-        }
-    }
-
-
 }

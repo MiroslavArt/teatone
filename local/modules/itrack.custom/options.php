@@ -36,57 +36,58 @@ $arAllOptions = [
         [
             'main_ftp',
             Loc::getMessage($MODULE_ID.'_FTP'),
-            Option::get($MODULE_ID, 'FTP'),
+            Option::get($MODULE_ID, 'main_ftp'),
             ['text']
         ],
         [
             'main_ftpl',
             Loc::getMessage($MODULE_ID.'_FTPL'),
-            Option::get($MODULE_ID, 'FTPL'),
+            Option::get($MODULE_ID, 'main_ftpl'),
             ['text']
         ],
         [
             'main_ftpp',
             Loc::getMessage($MODULE_ID.'_FTPP'),
-            Option::get($MODULE_ID, 'FTPP'),
+            Option::get($MODULE_ID, 'main_ftpp'),
             ['text']
         ],
         [
             'main_uf',
             Loc::getMessage($MODULE_ID.'_UF'),
-            Option::get($MODULE_ID, 'UF'),
-            ['text']
-        ],
-        /*[
-            'webinars_iblock_id',
-            Loc::getMessage($MODULE_ID.'_webinars_iblock_id'),
-            Option::get($MODULE_ID, 'webinars_iblock_id'),
-            [
-                'selectbox',
-                $arIblocks
-            ]
-        ],*/
-    ],
-    /*'sendpulse' => [
-        [
-            'sendpulse_id',
-            Loc::getMessage($MODULE_ID.'_sendpulse_id'),
-            Option::get($MODULE_ID, 'sendpulse_id'),
+            Option::get($MODULE_ID, 'main_uf'),
             ['text']
         ],
         [
-            'sendpulse_token',
-            Loc::getMessage($MODULE_ID.'_sendpulse_token'),
-            Option::get($MODULE_ID, 'sendpulse_token'),
+            'uf_lead_guid',
+            Loc::getMessage($MODULE_ID.'_UF_LEAD_GUID'),
+            Option::get($MODULE_ID, 'uf_lead_guid'),
             ['text']
         ],
         [
-            'sendpulse_sync_books',
-            Loc::getMessage($MODULE_ID.'_sendpulse_sync_books'),
-            Option::get($MODULE_ID, 'sendpulse_sync_books'),
-            ['checkbox']
+            'uf_deal_guid',
+            Loc::getMessage($MODULE_ID.'_UF_DEAL_GUID'),
+            Option::get($MODULE_ID, 'uf_deal_guid'),
+            ['text']
+        ],
+        [
+            'uf_contact_guid',
+            Loc::getMessage($MODULE_ID.'_UF_CONTACT_GUID'),
+            Option::get($MODULE_ID, 'uf_contact_guid'),
+            ['text']
+        ],
+        [
+            'uf_company_guid',
+            Loc::getMessage($MODULE_ID.'_UF_COMPANY_GUID'),
+            Option::get($MODULE_ID, 'uf_company_guid'),
+            ['text']
+        ],
+        [
+            '1c_import_path',
+            Loc::getMessage($MODULE_ID.'_1C_IMPORT_PATH'),
+            Option::get($MODULE_ID, '1c_import_path'),
+            ['text']
         ]
-    ]*/
+    ]
 ];
 
 if(isset($request["save"]) && check_bitrix_sessid()) {
