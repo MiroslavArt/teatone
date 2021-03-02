@@ -32,11 +32,61 @@ while($arIBlock = $dbIblock->fetch()) {
 }
 
 $arAllOptions = [
-    'bizon365' => [
-
-    ],
-    'sendpulse' => [
-
+    'main' => [
+        [
+            'main_ftp',
+            Loc::getMessage($MODULE_ID.'_FTP'),
+            Option::get($MODULE_ID, 'main_ftp'),
+            ['text']
+        ],
+        [
+            'main_ftpl',
+            Loc::getMessage($MODULE_ID.'_FTPL'),
+            Option::get($MODULE_ID, 'main_ftpl'),
+            ['text']
+        ],
+        [
+            'main_ftpp',
+            Loc::getMessage($MODULE_ID.'_FTPP'),
+            Option::get($MODULE_ID, 'main_ftpp'),
+            ['text']
+        ],
+        [
+            'main_uf',
+            Loc::getMessage($MODULE_ID.'_UF'),
+            Option::get($MODULE_ID, 'main_uf'),
+            ['text']
+        ],
+        [
+            'uf_lead_guid',
+            Loc::getMessage($MODULE_ID.'_UF_LEAD_GUID'),
+            Option::get($MODULE_ID, 'uf_lead_guid'),
+            ['text']
+        ],
+        [
+            'uf_deal_guid',
+            Loc::getMessage($MODULE_ID.'_UF_DEAL_GUID'),
+            Option::get($MODULE_ID, 'uf_deal_guid'),
+            ['text']
+        ],
+        [
+            'uf_contact_guid',
+            Loc::getMessage($MODULE_ID.'_UF_CONTACT_GUID'),
+            Option::get($MODULE_ID, 'uf_contact_guid'),
+            ['text']
+        ],
+        [
+            'uf_company_guid',
+            Loc::getMessage($MODULE_ID.'_UF_COMPANY_GUID'),
+            Option::get($MODULE_ID, 'uf_company_guid'),
+            ['text']
+        ],
+        [
+            '1c_import_path',
+            Loc::getMessage($MODULE_ID.'_1C_IMPORT_PATH'),
+            Option::get($MODULE_ID, '1c_import_path'),
+            ['text']
+        ]
     ]
 ];
 
@@ -52,8 +102,19 @@ if(isset($request["save"]) && check_bitrix_sessid()) {
 
 $arTabs = [
     [
-
-    ]
+        "DIV" => "main",
+        "TAB" => Loc::getMessage($MODULE_ID.'_main'),
+        "ICON" => $MODULE_ID . '_settings',
+        "TITLE" => Loc::getMessage($MODULE_ID.'_bizon365_tab_subtitle'),
+        'TYPE' => 'options', //options || rights || user defined
+    ],
+    /*[
+        "DIV" => "sendpulse",
+        "TAB" => Loc::getMessage($MODULE_ID.'_sendpulse_tab_title'),
+        "ICON" => $MODULE_ID . '_settings',
+        "TITLE" => Loc::getMessage($MODULE_ID.'_sendpulse_tab_subtitle'),
+        'TYPE' => 'options', //options || rights || user defined
+    ]*/
 ];
 
 $tabControl = new CAdminTabControl("tabControl", $arTabs);
