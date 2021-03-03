@@ -162,9 +162,9 @@ $(document).ready(function() {
             })
         }
         BX24.callBatch(stagesrequest, function (resultdealsstages) {
-            console.log(resultdealsstages)
+            //console.log(resultdealsstages)
             BX24.callBatch(stagesrequest, function (resultdealsstages) {
-                console.log(resultdealsstages)
+                //console.log(resultdealsstages)
                 for (var tunnelres in resultdealsstages) {
                     // условие для А-трейд
                         resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
@@ -193,6 +193,7 @@ $(document).ready(function() {
                 });
 
                 var select4 = $("<select class=\"js-select4\" multiple=\"multiple\"></select>").attr("id", "typef").attr("name", "typef").attr("multiple", "multiple");
+                select4.append($("<option></option>").attr("value", 'all').text('Выбрать все'));
                 $.each(types,function(index,types){
                     //console.log(json)
                     select4.append($("<option></option>").attr("value", types.value).text(types.text));
@@ -205,6 +206,14 @@ $(document).ready(function() {
                     placeholder: "Показатели",
                     allowHtml: true,
                     allowClear: true
+                });
+
+                $('.js-select4').on("select2:select", function (e) {
+                    var data = e.params.data.text;
+                    if(data=='Выбрать все'){
+                        $(".js-select4 > option").prop("selected","selected");
+                        $(".js-select4").trigger("change");
+                    }
                 });
             })
 
@@ -487,6 +496,13 @@ function generatefact(setuserf) {
         var resultarr = {};
         var request = {}
         var requestparam = {}
+        var call = settypesf.indexOf('all')
+        if (call !== -1) {
+            // Выполнение кода, если элемент в массиве найден
+            settypesf.splice(call,1)
+        }
+
+
         var clind = settypesf.indexOf('CL')
         if (clind !== -1) {
             // Выполнение кода, если элемент в массиве найден
@@ -751,18 +767,18 @@ function generatefact(setuserf) {
 
 // функция без ограничения в 50 записей в запросе
 function additionalfactfifty(resultarr, iterations, setuserf) {
-    console.log(iterations)
+    //console.log(iterations)
     stepiter++
     var drawfcl = false
-    console.log(iterations)
+    //console.log(iterations)
     var arr = Object.keys( iterations ).map(function ( key ) { return iterations[key]; });
     var maxiterations = Math.max.apply( null, arr )
     var request = {}
-    console.log(maxiterations)
-    console.log(stepiter)
+    //console.log(maxiterations)
+    //console.log(stepiter)
     if(stepiter<=maxiterations) {
         for(var iterkey in iterations) {
-            console.log(iterkey)
+            //console.log(iterkey)
             if(iterkey=="IC" && stepiter<=iterations[iterkey]) {
                 // логика входящих звонков - исправить потом фильтр с датой
                 var requestparam = {}
@@ -817,11 +833,11 @@ function additionalfactfifty(resultarr, iterations, setuserf) {
                 }
             }
         }
-        console.log(request)
+        //console.log(request)
         BX24.callBatch(request, function (resultiterations) {
-            console.log(resultiterations)
+            //console.log(resultiterations)
             for(var iterkey in iterations) {
-                console.log(iterkey)
+                //console.log(iterkey)
                 if(iterkey=="IC" || iterkey=="OC") {
                     // логика входящих звонков - исправить потом фильтр с датой
                     if(resultiterations['fact_' + iterkey]!=undefined) {
@@ -959,7 +975,12 @@ function drawfact(resultarr, setuserf) {
     var typename
     var managername
     settypesf = $("#typef").val()
-    console.log(resultarr)
+    var call = settypesf.indexOf('all')
+    if (call !== -1) {
+        // Выполнение кода, если элемент в массиве найден
+        settypesf.splice(call,1)
+    }
+    //console.log(resultarr)
     $("#resultfacttext").text("Отчет сформирован!")
     $.each(users,function(index,users) {
         if (users.value == setuserf) {
@@ -1034,7 +1055,7 @@ function drawfact(resultarr, setuserf) {
             tr.append($("<td></td>").text('0').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('100'))
         } else {
-            tr.append($("<td></td>").text('100').attr('bgcolor', 'red'))
+            tr.append($("<td></td>").text('0').attr('bgcolor', 'red'))
             tr.append($("<td></td>").text('0'))
         }
         table.append(tr)
