@@ -170,7 +170,7 @@ $(document).ready(function() {
                         resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
                             if(restunnel['STATUS_ID']=='C1:PREPARATION' || restunnel['STATUS_ID']=='C1:1' ||
                                restunnel['STATUS_ID']=='C1:4') {
-                                let objstage = {value: restunnel['STATUS_ID'], text: "Переходы на этап " + restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
+                                let objstage = {value: restunnel['STATUS_ID'], text: restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
                                 types.push(objstage)
                                 }
                             }
