@@ -39,7 +39,7 @@ $out = executeBATCH($params,$domain, $auth);
 //$dealid = $out['result']['result']['get_deal']['ID'];
 $stage = $out['result']['result']['get_deal']['STAGE_ID'];
 // тут поменять код поле на то, которое на портале
-$checklist = $out['result']['result']['get_deal']['UF_CRM_1612443146'];
+$checklist = $out['result']['result']['get_deal']['UF_CRM_1612524000'];
 $meeting = $out['result']['result']['get_deal']['UF_CRM_1612349525'];
 $date = date("d.m.Y");
 $assigned = $out['result']['result']['get_deal']['MODIFY_BY_ID'];

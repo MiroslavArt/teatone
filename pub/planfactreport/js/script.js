@@ -156,9 +156,9 @@ $(document).ready(function() {
         if(liststunnels.length>0) {
             liststunnels.forEach(function (tunnel) {
                 stagesrequestparam = {}
-                stagesrequest['stages_fields_'+1] = ['crm.dealcategory.stage.list']
+                stagesrequest['stages_fields_'+tunnel['ID']] = ['crm.dealcategory.stage.list']
                 stagesrequestparam['id'] = tunnel['ID']
-                stagesrequest['stages_fields_'+1].push(stagesrequestparam)
+                stagesrequest['stages_fields_'+tunnel['ID']].push(stagesrequestparam)
             })
         }
         BX24.callBatch(stagesrequest, function (resultdealsstages) {
@@ -170,7 +170,7 @@ $(document).ready(function() {
                         resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
                             if(restunnel['STATUS_ID']=='C1:PREPARATION' || restunnel['STATUS_ID']=='C1:1' ||
                                restunnel['STATUS_ID']=='C1:4') {
-                                let objstage = {value: restunnel['STATUS_ID'], text: restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
+                                let objstage = {value: restunnel['STATUS_ID'], text: restunnel['NAME'] /*+ "(" + restunnel['STATUS_ID'] + ")"*/}
                                 types.push(objstage)
                                 }
                             }
