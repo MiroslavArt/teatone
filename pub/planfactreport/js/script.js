@@ -156,9 +156,9 @@ $(document).ready(function() {
         if(liststunnels.length>0) {
             liststunnels.forEach(function (tunnel) {
                 stagesrequestparam = {}
-                stagesrequest['stages_fields_'+1] = ['crm.dealcategory.stage.list']
+                stagesrequest['stages_fields_'+tunnel['ID']] = ['crm.dealcategory.stage.list']
                 stagesrequestparam['id'] = tunnel['ID']
-                stagesrequest['stages_fields_'+1].push(stagesrequestparam)
+                stagesrequest['stages_fields_'+tunnel['ID']].push(stagesrequestparam)
             })
         }
         BX24.callBatch(stagesrequest, function (resultdealsstages) {
@@ -167,14 +167,14 @@ $(document).ready(function() {
                 //console.log(resultdealsstages)
                 for (var tunnelres in resultdealsstages) {
                     // условие для А-трейд
-                        resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
+                    resultdealsstages[tunnelres]['answer']['result'].forEach(function(restunnel) {
                             if(restunnel['STATUS_ID']=='C1:PREPARATION' || restunnel['STATUS_ID']=='C1:1' ||
-                               restunnel['STATUS_ID']=='C1:4') {
-                                let objstage = {value: restunnel['STATUS_ID'], text: restunnel['NAME'] + "(" + restunnel['STATUS_ID'] + ")"}
+                                restunnel['STATUS_ID']=='C1:4') {
+                                let objstage = {value: restunnel['STATUS_ID'], text: restunnel['NAME'] /*+ "(" + restunnel['STATUS_ID'] + ")"*/}
                                 types.push(objstage)
-                                }
                             }
-                        )
+                        }
+                    )
                     //}
                 }
                 var select3 = $("<select class=\"js-select2\"></select>").attr("id", "type").attr("name", "type");
@@ -455,7 +455,7 @@ function generateplan() {
                             }, function (result) {
                                 //console.log(result)
                             });
-                           }
+                        }
                     }
                 });
             });
@@ -636,7 +636,7 @@ function generatefact(setuserf) {
                 }
 
                 //if(settypesf != "CL") {
-                    var factarr = resultplus['fact_'+settypesf]['answer']['result']
+                var factarr = resultplus['fact_'+settypesf]['answer']['result']
                 //} else {
                 //    var factarr = resultplus['fact_'+settypesf]['answer']['result']['tasks']
                 //}
@@ -748,6 +748,9 @@ function generatefact(setuserf) {
                             }
                             resultarr[settypesf][listdate] = Number(resultarr[settypesf][listdate])
                                 + Number(Object.values(fact[factvaluefield])[0])
+                            //console.log(Object.values(fact[factvaluefield])[0])
+                            //resultarr[settypesf][listdate] = Math.floor(Number(resultarr[settypesf][listdate])*100)/100
+                            //    + Math.floor(Number(Object.values(fact[factvaluefield])[0])*100)/100
                         })
                     }
                 }
@@ -1033,11 +1036,16 @@ function drawfact(resultarr, setuserf) {
                 resultarr[settypesf][sdate] = 0
             }
             totaltype = Number(totaltype) + Number(resultarr[settypesf][sdate])
-            tr.append($("<td></td>").text(resultarr[settypesf][sdate]))
+            //tr.append($("<td></td>").text(Math.floor((resultarr[settypesf][sdate])*100)/100)
+            //totaltype = Math.floor(totaltype*100)/100 + Math.floor(resultarr[settypesf][sdate]*100)/100
+            //totaltype = totaltype + Math.floor(resultarr[settypesf][sdate]*100)/100
+            tr.append($("<td></td>").text(Math.floor(resultarr[settypesf][sdate]*100)/100))
+            // tr.append($("<td></td>").text(resultarr[settypesf][sdate]))
 
             datebeg.setDate(datebeg.getDate()+1)
         }
-        tr.append($("<td></td>").text(totaltype))
+        //tr.append($("<td></td>").text(totaltype))
+        tr.append($("<td></td>").text(Math.ceil(totaltype*100)/100))
         var plantype = Number(resultarr[settypesf]['plan'])
         tr.append($("<td></td>").text(plantype))
         if(totaltype>0 && plantype>0) {
