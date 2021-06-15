@@ -96,6 +96,9 @@ $(document).ready(function() {
     BX24.callBatch({
         user_list: ['user.get',
             {
+                FILTER: {
+                    ACTIVE: 'Y'
+                }
             }
         ]
     }, function (result) {
@@ -111,6 +114,9 @@ $(document).ready(function() {
             BX24.callBatch({
                 user_list: ['user.get',
                     {
+                        FILTER: {
+                            ACTIVE: 'Y'
+                        },
                         start: startcount
                     }
                 ]
