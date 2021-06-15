@@ -1039,11 +1039,13 @@ function drawfact(resultarr, setuserf) {
                 resultarr[settypesf][sdate] = 0
             }
             totaltype = Number(totaltype) + Number(resultarr[settypesf][sdate])
-            tr.append($("<td></td>").text(resultarr[settypesf][sdate]))
+            //tr.append($("<td></td>").text(resultarr[settypesf][sdate]))
+            tr.append($("<td></td>").text(Math.floor(resultarr[settypesf][sdate]*100)/100))
 
             datebeg.setDate(datebeg.getDate()+1)
         }
-        tr.append($("<td></td>").text(totaltype))
+        //tr.append($("<td></td>").text(totaltype))
+        tr.append($("<td></td>").text(Math.ceil(totaltype*100)/100))
         var plantype = Number(resultarr[settypesf]['plan'])
         tr.append($("<td></td>").text(plantype))
         if(totaltype>0 && plantype>0) {
