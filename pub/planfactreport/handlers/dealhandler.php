@@ -18,68 +18,73 @@ $auth = $_REQUEST["auth"]["access_token"];
 $domain = $_REQUEST["auth"]["domain"];
 $dealid = $_REQUEST["data"]["FIELDS"]["ID"];
 
-$params = array(
-    'get_deal' => 'crm.deal.get?'
-        .http_build_query(array(
-            'id' => $dealid
-        )),
-    "get_group" => 'app.option.get?'
-        .http_build_query(array(
-            'option' => 'planfact_uv_groups'
-        ))
-);
-
-$out = executeBATCH($params,$domain, $auth);
-//echo "<pre>";
-//print_r($out);
-//echo "</pre>";
-
-$out = executeBATCH($params,$domain, $auth);
-
-//$dealid = $out['result']['result']['get_deal']['ID'];
-$stage = $out['result']['result']['get_deal']['STAGE_ID'];
-// тут поменять код поле на то, которое на портале
-$checklist = $out['result']['result']['get_deal']['UF_CRM_1612524000'];
-$meeting = $out['result']['result']['get_deal']['UF_CRM_1612349525'];
-$date = date("d.m.Y");
-$assigned = $out['result']['result']['get_deal']['MODIFY_BY_ID'];
-$sum = $out['result']['result']['get_deal']['OPPORTUNITY'];
-$sonetgroup = preg_replace("/[^0-9]/", '', $out['result']['result']['get_group']);
-
-$params = array(
-    'get_fields' => 'lists.field.get?'
-        .http_build_query(array(
-            'IBLOCK_TYPE_ID' => 'lists_socnet',
-            'IBLOCK_CODE' => 'listfacts' . $sonetgroup,
-            'SOCNET_GROUP_ID' => $sonetgroup
-        )),
-);
-$out = executeBATCH($params,$domain, $auth);
-//echo "<pre>";
-//print_r($out);
-//echo "</pre>";
-
-foreach($out['result']['result']['get_fields'] as $key => $fieldval) {
-    if($fieldval['NAME'] == 'value') {
-        $propvalue = $key;
-    } elseif ($fieldval['NAME'] == 'date') {
-        $propdate = $key;
-    } elseif ($fieldval['NAME'] == 'type') {
-        $proptype = $key;
-    } elseif ($fieldval['NAME'] == 'employee') {
-        $propasn = $key;
-    }
-}
-// поправить
-//if($stage != 'WON') {
-//if(!strpos($stage, 'WON')) {
-if(!preg_match("/WON/", $stage)) {
+if($auth) {
     $params = array(
-        'add_value' => 'lists.element.add?'
-            . http_build_query(array(
+        'get_deal' => 'crm.deal.get?'
+            .http_build_query(array(
+                'id' => $dealid
+            )),
+        "get_group" => 'app.option.get?'
+            .http_build_query(array(
+                'option' => 'planfact_uv_groups'
+            ))
+    );
+
+    $out = executeBATCH($params,$domain, $auth);
+
+    //writeToLog($params, 'par');
+    //echo "<pre>";
+    //print_r($out);
+    //echo "</pre>";
+    //writeToLog($out, 'calls2');
+    //$out = executeBATCH($params,$domain, $auth);
+
+    $stage = $out['result']['result']['get_deal']['STAGE_ID'];
+    // тут поменять код поле на то, которое на портале
+    $checklist = $out['result']['result']['get_deal']['UF_CRM_1612524000'];
+    $meeting = $out['result']['result']['get_deal']['UF_CRM_1612349525'];
+    $date = date("d.m.Y");
+    $assigned = $out['result']['result']['get_deal']['ASSIGNED_BY_ID'];
+    if($assigned==0) {
+        $assigned = $out['result']['result']['get_deal']['CREATED_BY_ID'];
+    }
+    $sum = $out['result']['result']['get_deal']['OPPORTUNITY'];
+    $sonetgroup = preg_replace("/[^0-9]/", '', $out['result']['result']['get_group']);
+
+    $params = array(
+        'get_fields' => 'lists.field.get?'
+            .http_build_query(array(
+                'IBLOCK_TYPE_ID' => 'lists_socnet',
+                'IBLOCK_CODE' => 'listfacts' . $sonetgroup,
+                'SOCNET_GROUP_ID' => $sonetgroup
+            )),
+    );
+    $out = executeBATCH($params,$domain, $auth);
+    //echo "<pre>";
+    //print_r($out);
+    //echo "</pre>";
+
+    foreach($out['result']['result']['get_fields'] as $key => $fieldval) {
+        if($fieldval['NAME'] == 'value') {
+            $propvalue = $key;
+        } elseif ($fieldval['NAME'] == 'date') {
+            $propdate = $key;
+        } elseif ($fieldval['NAME'] == 'type') {
+            $proptype = $key;
+        } elseif ($fieldval['NAME'] == 'employee') {
+            $propasn = $key;
+        }
+    }
+    // поправить
+    //if($stage != 'WON') {
+    //if(!strpos($stage, 'WON')) {
+    if(!preg_match("/WON/", $stage)) {
+        $params = array(
+            'add_value' => 'lists.element.add?'
+                . http_build_query(array(
                     'IBLOCK_TYPE_ID' => 'lists_socnet',
                     'IBLOCK_CODE' => 'listfacts'.$sonetgroup,
-                    'ELEMENT_CODE' => $dealid.'S'.$stage.'A'.$assigned,
+                    'ELEMENT_CODE' => $dealid.'S'.$stage.'A'.$assigned.'D'.$date,
                     'FIELDS' => array(
                         'NAME' => $dealid.'S'.$stage.'A'.$assigned,
                         $propvalue => 1,
@@ -87,38 +92,39 @@ if(!preg_match("/WON/", $stage)) {
                         $proptype => $stage,
                         $propasn => $assigned
                     )
-            ))
-    );
-} else {
-    $params = array(
-        'add_value1' => 'lists.element.add?'
-            . http_build_query(array(
-                'IBLOCK_TYPE_ID' => 'lists_socnet',
-                'IBLOCK_CODE' => 'listfacts'.$sonetgroup,
-                'ELEMENT_CODE' => $dealid.'S'.$stage.'A'.$assigned.'wonreg',
-                'FIELDS' => array(
-                    'NAME' => $dealid.'S'.$stage.'A'.$assigned.'wonreg',
-                    $propvalue => 1,
-                    $propdate => $date,
-                    $proptype => $stage,
-                    $propasn => $assigned
-                )
-            )),
-        'add_value2' => 'lists.element.add?'
-            . http_build_query(array(
-                'IBLOCK_TYPE_ID' => 'lists_socnet',
-                'IBLOCK_CODE' => 'listfacts'.$sonetgroup,
-                'ELEMENT_CODE' => $dealid.'S'.$stage.'A'.$assigned.'wonsum',
-                'FIELDS' => array(
-                    'NAME' => $dealid.'S'.$stage.'A'.$assigned.'wonsum',
-                    $propvalue => $sum,
-                    $propdate => $date,
-                    $proptype => 'SL',
-                    $propasn => $assigned
-                )
-            )),
+                ))
+        );
+    } else {
+        $params = array(
+            'add_value1' => 'lists.element.add?'
+                . http_build_query(array(
+                    'IBLOCK_TYPE_ID' => 'lists_socnet',
+                    'IBLOCK_CODE' => 'listfacts' . $sonetgroup,
+                    'ELEMENT_CODE' => $dealid . 'S' . $stage . 'A' . $assigned . 'wonreg' . 'D' . $date,
+                    'FIELDS' => array(
+                        'NAME' => $dealid . 'S' . $stage . 'A' . $assigned . 'wonreg',
+                        $propvalue => 1,
+                        $propdate => $date,
+                        $proptype => $stage,
+                        $propasn => $assigned
+                    )
+                )),
+            'add_value2' => 'lists.element.add?'
+                . http_build_query(array(
+                    'IBLOCK_TYPE_ID' => 'lists_socnet',
+                    'IBLOCK_CODE' => 'listfacts' . $sonetgroup,
+                    'ELEMENT_CODE' => $dealid . 'S' . $stage . 'A' . $assigned . 'wonsum' . 'D' . $date,
+                    'FIELDS' => array(
+                        'NAME' => $dealid . 'S' . $stage . 'A' . $assigned . 'wonsum',
+                        $propvalue => $sum,
+                        $propdate => $date,
+                        $proptype => 'SL',
+                        $propasn => $assigned
+                    )
+                )),
 
-    );
+        );
+    }
 }
 
 $out = executeBATCH($params,$domain, $auth);
@@ -166,7 +172,7 @@ if($checklist) {
 //echo "</pre>";
 
 
-function executeBATCH (array $params, $domain, $auth) {
+function executeBATCH(array $params, $domain, $auth) {
     $appParams = http_build_query(array(
         'auth' => $auth,
         'halt' => 0,
@@ -186,6 +192,8 @@ function executeBATCH (array $params, $domain, $auth) {
     $out = json_decode($out, 1);
     return $out;
 }
+
+
 
 
 
