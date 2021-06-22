@@ -140,6 +140,7 @@ $(document).ready(function() {
     types = [
         {value: "IC", text: "Входящие звонки"},
         {value: "OC", text: "Исходящие звонки"},
+        {value: "LT", text: "Отправленные письма"},
         {value: "CL", text: "Заполненные чек-листы"},
         {value: "SL", text: "Сумма отгрузок(все воронки)"},
         {value: "MT", text: "Встреч проведено"},
@@ -574,7 +575,18 @@ function generatefact(setuserf) {
                 }
                 requestparam['SELECT'] = ["*"]
                 request['fact_'+settypesf].push(requestparam)
-            } /*else if(settypesf=="CL") {
+            } else if(settypesf=="LT") {
+                // логика исходящих писем - исправить потом фильтр с датой
+                request['fact_'+settypesf] = ['crm.activity.list']
+                requestparam['ORDER'] = { "ID": "DESC" }
+                requestparam['FILTER'] = { "TYPE_ID": 4,
+                    ">=START_TIME": setdatebegf, "<=END_TIME": datendft,
+                    'AUTHOR_ID': setuserf, "DIRECTION": 2
+                }
+                requestparam['SELECT'] = ["*"]
+                request['fact_'+settypesf].push(requestparam)
+            }
+            /*else if(settypesf=="CL") {
                 // логика чек листов к задачам
                 request['fact_'+settypesf] = ['tasks.task.list']
                 requestparam['filter'] = {
@@ -650,7 +662,7 @@ function generatefact(setuserf) {
 
 
                 if(factarr.length>0) {
-                    if (settypesf == "IC" || settypesf == "OC") {
+                    if (settypesf == "IC" || settypesf == "OC" || settypesf == "LT") {
                         factarr.forEach(function (fact) {
                             var datefact = fact['START_TIME'].slice(8,10) + '.' + fact['START_TIME'].slice(5,7) +
                                 '.' + fact['START_TIME'].slice(0,4)
@@ -812,7 +824,20 @@ function additionalfactfifty(resultarr, iterations, setuserf) {
                 requestparam['SELECT'] = ["*"]
                 requestparam['start'] = 50*stepiter
                 request['fact_' + iterkey].push(requestparam)
-            } /*else if(iterkey=="CL" && stepiter<=iterations[iterkey]) {
+            } else if(iterkey=="LT" && stepiter<=iterations[iterkey]) {
+                // логика отправленных писем
+                var requestparam = {}
+                request['fact_' + iterkey] = ['crm.activity.list']
+                requestparam['ORDER'] = {"ID": "DESC"}
+                requestparam['FILTER'] = {
+                    "TYPE_ID": 4,
+                    ">=START_TIME": setdatebegf, "<=END_TIME": datendft,
+                    'AUTHOR_ID': setuserf, "DIRECTION": 2
+                }
+                requestparam['SELECT'] = ["*"]
+                requestparam['start'] = 50*stepiter
+                request['fact_' + iterkey].push(requestparam)
+            }/*else if(iterkey=="CL" && stepiter<=iterations[iterkey]) {
                 var requestparam = {}
                 request['fact_' + iterkey] = ['tasks.task.list']
                 requestparam['filter'] = {
@@ -844,7 +869,7 @@ function additionalfactfifty(resultarr, iterations, setuserf) {
             //console.log(resultiterations)
             for(var iterkey in iterations) {
                 //console.log(iterkey)
-                if(iterkey=="IC" || iterkey=="OC") {
+                if(iterkey=="IC" || iterkey=="OC" || iterkey=="LT") {
                     // логика входящих звонков - исправить потом фильтр с датой
                     if(resultiterations['fact_' + iterkey]!=undefined) {
                         var factarr = resultiterations['fact_' + iterkey]['answer']['result']
