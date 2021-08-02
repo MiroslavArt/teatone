@@ -15,14 +15,17 @@ require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_bef
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/index.css?<?=time()?>">
+    <script src="js/heartcode-canvasloader.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="//api.bitrix24.com/api/v1/dev/"></script>
+    <script src="js/index.js"></script>
     <?
     $APPLICATION->ShowHead(false);
     ?>
-    <script src="js/script.js?<?=time()?>"></script>
+    <script src="js/newscript.js?<?=time()?>"></script>
 </head>
 <body>
 <div class="db">
@@ -68,6 +71,7 @@ require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_bef
                 <!-- <button id="button-a">Выгрузить в Excel</button> -->
                 <div id="resultfact">
                     <div id="resultfacttext"></div>
+                    <div id='round'></div>
                     <div id="resultfactdate"></div>
                 </div>
             </div>
