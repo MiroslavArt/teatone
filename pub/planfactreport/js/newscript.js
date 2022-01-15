@@ -299,7 +299,7 @@ $(document).ready(function() {
             if(setuserf!='all') {
                 //generatefact(setuserf)
 				countusers++
-				generatefact(setuserf).then(function(uid) {
+				generatefact(setuserf).then(function(uid) { 
                     /* stuff */
                     //console.log('start')
                     //console.log(uid)
